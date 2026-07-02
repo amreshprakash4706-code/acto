@@ -1944,6 +1944,17 @@ function openAIChat() {
       addChatMessage('ai', "Hello! I'm Atconiz, your personal real estate intelligence assistant. How can I help you discover your perfect property today?");
     }
   }, 600);
+} 
+function addChatMessage(sender, text) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  const msg = document.createElement('div');
+  msg.className = `chat-message ${sender}`;
+  msg.innerHTML = text;
+
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
 }
 
 async function sendChatMessage() {
