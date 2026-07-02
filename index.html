@@ -1,10 +1,10 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atconiz • AI-Powered Real Estate</title>
+<title>Atconiz • AI-Powered Real Estate Platform</title>
 <style>
 :root {
   --bg-primary: #0a0b12;
@@ -548,7 +548,7 @@ input:focus, select:focus, textarea:focus {
         
         <p style="font-size: 22px; color: var(--text-secondary); max-width: 520px; margin-bottom: 42px;">
           Curated collection of the world's most exceptional properties, 
-          guided by proprietary AI intelligence.
+          guided by proprietary AI intelligence Powered by Gemmani.
         </p>
         
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
@@ -1039,7 +1039,7 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
   <div style="max-width:1280px; margin:60px auto 0; padding-top:30px; border-top:1px solid var(--glass-border); text-align:center; color:var(--text-secondary); font-size:13px;">
-    © 2026 Atconiz Intelligence Inc. All rights reserved. • Built with precision by Amresh.
+    © 2026 Atconiz Intelligence Inc Powered by Gemmani. All rights reserved. • Built with precision by Amresh.
   </div>
 </footer>
 
@@ -2012,12 +2012,56 @@ function generateAIResponse(query) {
   if (q.includes('compare') || q.includes('vs')) {
     return `You can compare up to 3 properties at once. Just go to the Explore section, select properties using the compare icon (⚖︎), then click "Compare Now".`;
   }
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  if (!input || !input.value.trim()) return;
 
-  // Default intelligent response
-  return `Thanks for your question. I have access to 142,847 properties and real-time market intelligence.\n\nYou can ask me about:\n• Specific property valuations\n• Market trends & forecasts\n• Investment projections\n• Recommendations based on your preferences\n\nWhat would you like to explore?`;
+  const userText = input.value.trim();
+  addChatMessage('user', userText);
+  input.value = '';
+
+  // Typing indicator
+  const messagesContainer = document.getElementById('chat-messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'chat-message ai';
+  typingDiv.id = 'typing-indicator';
+  typingDiv.style.opacity = '0.7';
+  typingDiv.innerHTML = '<span>Atconiz is thinking...</span>';
+  messagesContainer.appendChild(typingDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: userText })
+    });
+
+    const data = await response.json();
+
+    // Remove typing indicator
+    const typing = document.getElementById('typing-indicator');
+    if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+
+    if (data.reply) {
+      addChatMessage('ai', data.reply);
+    } else {
+      addChatMessage('ai', 'Sorry, I couldn\'t get a response from Gemini.');
+    }
+  } catch (error) {
+    const typing = document.getElementById('typing-indicator');
+    if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+    addChatMessage('ai', 'Sorry, there was a problem connecting to Gemini.');
+    console.error('Chat error:', error);
+  }
 }
 
-// AI Valuation
+// No longer used for chat (can be removed later)
+async function generateAIResponse(query) {
+  return "Chat is now powered by real Gemini via /api/chat";
+}
 function runAIValuation(e) {
   e.preventDefault();
   
@@ -3125,4 +3169,3 @@ document.addEventListener('DOMContentLoaded', initializePlatform);
 </script>
 </body>
 </html>
-```
