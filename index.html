@@ -508,7 +508,7 @@ input:focus, select:focus, textarea:focus {
       <div onclick="switchView('explore')" class="nav-link" data-view="explore">Explore</div>
       <div onclick="switchView('ai-studio')" class="nav-link" data-view="ai-studio">AI Studio</div>
       <div onclick="switchView('dashboards')" class="nav-link" data-view="dashboards">Dashboards</div>
-      <div onclick="switchView('resources')" class="nav-link" data-view="resources">Resources</div>
+      <div onclick="switchView('resources')" class="nav-link" data-view="resources">About & Pricing</div>
     </nav>
 
     <div style="display: flex; align-items: center; gap: 14px;">
@@ -548,7 +548,7 @@ input:focus, select:focus, textarea:focus {
         
         <p style="font-size: 22px; color: var(--text-secondary); max-width: 520px; margin-bottom: 42px;">
           Curated collection of the world's most exceptional properties, 
-          guided by proprietary AI intelligence Powered by Gemmani.
+          guided by proprietary AI intelligence Powered by Gemini.
         </p>
         
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
@@ -977,6 +977,7 @@ input:focus, select:focus, textarea:focus {
         <div style="margin-bottom:24px; color:var(--text-secondary);">Full intelligence access</div>
         <ul style="list-style:none; margin-bottom:32px; line-height:2.1;">
           <li>✓ Unlimited AI valuations</li>
+          <li>✓ Better Modals
           <li>✓ Priority viewings</li>
           <li>✓ Dedicated Atconiz concierge</li>
           <li>✓ Investment modeling</li>
@@ -993,8 +994,9 @@ input:focus, select:focus, textarea:focus {
           <li>✓ Everything in Private Client</li>
           <li>✓ Private market access</li>
           <li>✓ Portfolio management</li>
-          <li>✓ Bespoke AI models</li>
           <li>✓ On-site advisory team</li>
+          <li>✓ Better Modals
+          <li>✓ A Team of Heavy Experts<li/>
         </ul>
         <button onclick="showContactModal()" class="btn btn-gold" style="width:100%;">Contact for Proposal</button>
       </div>
@@ -1032,14 +1034,14 @@ input:focus, select:focus, textarea:focus {
     <div>
       <div style="font-weight:700; margin-bottom:18px;">Contact</div>
       <div style="color:var(--text-secondary); line-height:1.9;">
-        Beverly Hills • New York<br>
-        London • Dubai • Singapore<br><br>
+        India Chandigargh, Mohali<br>
+        Built by 14 year old Amresh <br><br>
         <span style="color:var(--accent);">amreshprakash4706@gmail.com</span>
       </div>
     </div>
   </div>
   <div style="max-width:1280px; margin:60px auto 0; padding-top:30px; border-top:1px solid var(--glass-border); text-align:center; color:var(--text-secondary); font-size:13px;">
-    © 2026 Atconiz Intelligence Inc Powered by Gemmani. All rights reserved. • Built with precision by Amresh.
+    © 2026 Atconiz Intelligence Inc Powered by. All rights reserved. • Built with precision by Amresh.
   </div>
 </footer>
 
@@ -1933,7 +1935,7 @@ function openAIChat() {
           <input id="chat-input" type="text" placeholder="Ask about properties, market trends, or valuations..." style="flex:1; border-radius:9999px; padding:14px 22px;" onkeypress="if(event.key==='Enter') sendChatMessage()">
           <button onclick="sendChatMessage()" class="btn btn-primary" style="border-radius:9999px; padding:0 28px;">Send</button>
         </div>
-        <div style="font-size:11px; text-align:center; margin-top:10px; color:var(--text-secondary);">Atconiz-3 • Responses are simulated for demonstration</div>
+        <div style="font-size:11px; text-align:center; margin-top:10px; color:var(--text-secondary);">Atconiz-3 • Powered by Gemini 3</div>
       </div>
     </div>
   `, {maxWidth: '720px'});
@@ -1955,6 +1957,7 @@ function addChatMessage(sender, text) {
 
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
+
 }
 
 async function sendChatMessage() {
