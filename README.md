@@ -17,45 +17,9 @@ Atconiz is a production-ready, single-file frontend + serverless backend platfor
 - **Zero Dependencies** (Frontend) — Single optimized `index.html`
 
 ---
+  |
 
-## 🚀 Quick Start (Recommended: Vercel)
 
-### 1. Deploy to Vercel
-
-```bash
-# Clone or upload the project
-vercel
-```
-
-### 2. Add Environment Variable
-
-In Vercel Dashboard → Project Settings → Environment Variables:
-
-| Name              | Value                        |
-|-------------------|------------------------------|
-| `GEMINI_API_KEY`  | `your_gemini_api_key_here`   |
-
-### 3. Done
-
-The `/api/chat` endpoint automatically connects to Gemini.
-
----
-
-## 🛠 Local Development
-
-```bash
-npm install
-vercel dev          # Recommended (runs both frontend + API)
-```
-
-Or for frontend only:
-
-```bash
-# Just open index.html in browser
-open index.html
-```
-
----
 
 ## 📁 Project Structure
 
