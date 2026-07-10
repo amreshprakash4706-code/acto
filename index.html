@@ -2166,23 +2166,29 @@ async function sendChatMessage() {
       body: JSON.stringify({ message: userText })
     });
 
-    const data = await response.json();
-
     // Remove typing indicator
     const typing = document.getElementById('typing-indicator');
     if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (e) {
+      addChatMessage('ai', "Server returned an invalid response (status " + response.status + "). Please try again.");
+      return;
+    }
 
     if (data.reply) {
       addChatMessage('ai', data.reply);
     } else if (data.error) {
       addChatMessage('ai', data.error);
     } else {
-      addChatMessage('ai', "Sorry, I couldn't get a response right now. Please try again.");
+      addChatMessage('ai', "Sorry, I couldn't get a response right now (status " + response.status + ").");
     }
   } catch (error) {
     const typing = document.getElementById('typing-indicator');
     if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
-    addChatMessage('ai', "Sorry, there was a problem connecting to Atconiz AI. Please check your connection and try again.");
+    addChatMessage('ai', "Network error: Could not reach Atconiz AI. Please check your internet or try again later.");
     console.error('Chat error:', error);
   }
 }
