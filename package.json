@@ -1,15 +1,28 @@
 {
-  "name": "actoniz-website",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "atconiz-website",
+  "version": "2.1.0",
+  "description": "Atconiz — Premium AI-Powered Real Estate Intelligence Platform built with Gemini",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "deploy": "vercel --prod",
+    "test": "echo \"No tests yet\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "real-estate",
+    "ai",
+    "gemini",
+    "luxury",
+    "atconiz",
+    "vercel"
+  ],
+  "author": "Amresh (13 years old)",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@google/genai": "^2.10.0"
   }

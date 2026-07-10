@@ -1098,14 +1098,14 @@ input:focus, select:focus, textarea:focus {
     <div>
       <div style="font-weight:700; margin-bottom:18px;">Contact</div>
       <div style="color:var(--text-secondary); line-height:1.9;">
-        India Chandigargh, Mohali<br>
-        Built by 14 year old Amresh <br><br>
+        India • Chandigarh, Mohali<br>
+        Built with passion by 13-year-old Amresh<br><br>
         <span style="color:var(--accent);">amreshprakash4706@gmail.com</span>
       </div>
     </div>
   </div>
   <div style="max-width:1280px; margin:60px auto 0; padding-top:30px; border-top:1px solid var(--glass-border); text-align:center; color:var(--text-secondary); font-size:13px;">
-    © 2026 Atconiz Intelligence Inc Powered by. All rights reserved. • Built with precision by Amresh.
+    © 2026 Atconiz Intelligence Inc. All rights reserved. • Built with precision by Amresh.
   </div>
 </footer>
 
@@ -2104,7 +2104,7 @@ function openAIChat() {
   setTimeout(() => {
     const container = document.getElementById('chat-messages');
     if (container && container.children.length === 0) {
-      addChatMessage('ai', "Hello! I'm Atconiz, your personal real estate intelligence assistant. How can I help you today?");
+      addChatMessage('ai', "Hello! I'm Atconiz AI — your personal real estate intelligence assistant. I can help with property insights, valuations, market advice, lifestyle matching, and more. How can I assist you today?");
     }
   }, 650);
 }
@@ -2122,11 +2122,21 @@ function addChatMessage(sender, text) {
 
   const msg = document.createElement('div');
   msg.className = `chat-message ${sender}`;
-  msg.innerHTML = text;
+  
+  // SECURITY: Never use innerHTML for user or AI text (XSS protection)
+  // Convert simple newlines to <br> safely after escaping
+  const safeText = String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\n/g, '<br>');
+  
+  msg.innerHTML = safeText;
 
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
-
 }
 
 async function sendChatMessage() {
@@ -2164,13 +2174,15 @@ async function sendChatMessage() {
 
     if (data.reply) {
       addChatMessage('ai', data.reply);
+    } else if (data.error) {
+      addChatMessage('ai', data.error);
     } else {
-      addChatMessage('ai', 'Sorry, I couldn\'t get a response from Gemini.');
+      addChatMessage('ai', "Sorry, I couldn't get a response right now. Please try again.");
     }
   } catch (error) {
     const typing = document.getElementById('typing-indicator');
     if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
-    addChatMessage('ai', 'Sorry, there was a problem connecting to Gemini.');
+    addChatMessage('ai', "Sorry, there was a problem connecting to Atconiz AI. Please check your connection and try again.");
     console.error('Chat error:', error);
   }
 }
