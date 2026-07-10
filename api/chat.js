@@ -1,7 +1,15 @@
 const { GoogleGenAI } = require("@google/genai");
 
+// List of models to try (from newest / recommended to older fallbacks)
+const MODELS = [
+  "gemini-3.5-flash",
+  "gemini-3.1-flash-lite",
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash"
+];
+
 module.exports = async (req, res) => {
-  // Always set CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -10,12 +18,11 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // Quick health check
   if (req.method === "GET") {
     return res.status(200).json({
       status: "Atconiz AI is alive",
       hasKey: !!process.env.GEMINI_API_KEY,
-      model: "gemini-3.5-flash",
+      models: MODELS,
       time: new Date().toISOString()
     });
   }
@@ -42,35 +49,45 @@ module.exports = async (req, res) => {
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    const prompt = `You are Atconiz AI, a sophisticated real-estate assistant for the luxury platform Atconiz. Be helpful, professional, precise and concise. Current year is 2026.
+    const prompt = `You are Atconiz AI, a sophisticated luxury real-estate assistant for the Atconiz platform. Be helpful, professional, precise and concise. Current year is 2026.
 
 User question: ${message}`;
 
-    // Using the current recommended model (gemini-2.5-flash is restricted for new users)
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
+    let lastError = null;
+
+    // Try each model until one works
+    for (const model of MODELS) {
+      try {
+        const response = await ai.models.generateContent({
+          model: model,
+          contents: prompt,
+        });
+
+        const reply = response?.text || response?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (reply && reply.trim()) {
+          return res.status(200).json({
+            reply: reply.trim(),
+            model: model   // so you can see which one worked
+          });
+        }
+      } catch (err) {
+        lastError = err;
+        console.log(`Model ${model} failed:`, err?.message || err);
+        // continue to next model
+      }
+    }
+
+    // All models failed
+    const msg = lastError?.message || "All models are currently busy. Please try again in a few seconds.";
+    return res.status(503).json({
+      error: "AI temporarily unavailable: " + msg.substring(0, 180)
     });
 
-    const reply = response.text || "I couldn't generate a reply. Please try again.";
-
-    return res.status(200).json({ reply: reply.trim() });
   } catch (error) {
     console.error(error);
-
-    // If 3.5 fails, try a fallback model
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const fallback = await ai.models.generateContent({
-        model: "gemini-2.5-flash-lite",
-        contents: `You are Atconiz AI, a helpful luxury real-estate assistant (2026). User: ${message}`,
-      });
-      const reply = fallback.text || "Sorry, I had trouble generating a reply.";
-      return res.status(200).json({ reply: reply.trim() });
-    } catch (fallbackError) {
-      return res.status(500).json({
-        error: "AI Error: " + (error.message || "Unknown error").substring(0, 220)
-      });
-    }
+    return res.status(500).json({
+      error: "AI Error: " + (error.message || "Unknown error").substring(0, 200)
+    });
   }
 };
