@@ -1,12 +1,9 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// List of models to try (from newest / recommended to older fallbacks)
+// Only these two models for fast & reliable responses (newest flash first)
 const MODELS = [
   "gemini-3.5-flash",
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-flash",
-  "gemini-2.0-flash"
+  "gemini-3.1-flash-lite"
 ];
 
 module.exports = async (req, res) => {

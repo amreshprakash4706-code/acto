@@ -10,7 +10,7 @@ Atconiz is a production-ready, single-file frontend + serverless backend platfor
 ## ✨ Key Highlights
 
 - **Stunning Luxury UI** — 3D tilt property cards, animated navigation, premium glassmorphism, micro-interactions
-- **Gemini-Powered AI** — Full chat assistant using `gemini-2.5-flash` with strong system prompt + safety
+- **Gemini-Powered AI** — Full chat assistant using `gemini-3.5-flash` + `gemini-3.1-flash-lite` (fastest & reliable) with strong personality + safety
 - **Advanced Tools** — AI Valuation, 10-year Investment Analysis, Global Land Price Calculator (multi-currency), Mortgage Calculator with amortization
 - **100 Curated Properties** — Realistic high-end listings across the world
 - **Full Dashboards** — User, Agent, Admin & Analytics views
@@ -88,15 +88,10 @@ The chat uses the official Google Gemini SDK with:
 - XSS protection on the frontend
 
 ```js
-// api/chat.js (key parts)
+// api/chat.js (key parts) - only gemini-3.5-flash + gemini-3.1-flash-lite for speed
 const response = await ai.models.generateContent({
-  model: "gemini-2.5-flash",
-  contents: message,
-  config: {
-    systemInstruction: SYSTEM_PROMPT,   // Makes it always act as Atconiz AI
-    temperature: 0.7,
-    maxOutputTokens: 1024,
-  },
+  model: model,
+  contents: prompt,  // Atconiz personality baked in
 });
 ```
 
@@ -153,7 +148,7 @@ Atconiz follows the highest standards of modern luxury interfaces:
 ## 👨‍💻 Built With
 
 - Pure HTML + CSS + JavaScript (no frameworks)
-- Google Gemini 2.5 Flash
+- Google Gemini 3.5 Flash + 3.1 Flash Lite (fast responses)
 - Vercel Serverless Functions
 - Unsplash for high-quality imagery
 
