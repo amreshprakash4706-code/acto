@@ -1,10 +1,9 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// Prefer fastest reliable models first. Fallback chain for resilience.
+// Primary: gemini-3.5-flash  |  Fallback: gemini-3.1-pro
 const MODELS = [
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-flash"
+  "gemini-3.5-flash",
+  "gemini-3.1-pro"
 ];
 
 const MAX_MESSAGE_LENGTH = 2000;
