@@ -1,77 +1,72 @@
 # Atconiz — AI Real Estate Intelligence Platform
 
-## Architecture (Refactored from Monolith)
+Premium, production-oriented luxury real-estate intelligence platform powered by Gemini.
 
-This project was transformed from a single 3400+ line `index.html` into a clean, production-oriented multi-file structure. **Every feature, interaction, animation, calculation, localStorage key, and visual detail works identically to the original.**
+**Version 3.1** — Design system, accessibility, and performance upgrades applied.
 
-### Current Structure
+## Structure
 
 ```
 atconiz/
-├── index.html                 # Pure markup + view structure (no <style>, no <script> logic)
-├── css/
-│   └── styles.css             # Complete original stylesheet (variables, glassmorphism, 
-│                              # responsive rules, animations, components)
-├── js/
-│   ├── data/
-│   │   └── properties.js      # Seeded PRNG, property templates, cities, agents,
-│   │                          # globalData, currencies, generateProperties(), 
-│   │                          # and shared state (properties, favorites, theme, etc.)
-│   ├── utils/
-│   │   └── helpers.js         # formatPrice, convertCurrency, debounce, 
-│   │                          # debounceSearch, showToast
-│   ├── app.js                 # Application logic: navigation, property cards & 3D tilt,
-│   │                          # filtering/search, favorites, compare, property details
-│   │                          # modals, AI chat, valuations, investment analysis,
-│   │                          # global land/price calculator, mortgage calculator +
-│   │                          # amortization, all dashboards, analytics canvas charts,
-│   │                          # testimonials/blog/FAQ, theme, particles, init
-│   ├── components/            # Reserved for future extraction (PropertyCard, etc.)
-│   ├── core/                  # Reserved (Modal system, Theme, Navigation)
-│   ├── features/              # Reserved (calculators/, ai/, dashboards)
-│   └── effects/               # Reserved (particles, micro-interactions)
+├── index.html              # Markup + SPA views
+├── styles.css              # Full design system (tokens, glass, motion, a11y)
+├── properties.js           # Seeded data + global state
+├── helpers.js              # formatPrice, debounce, toast
+├── app.js                  # All application logic
+├── api/
+│   ├── chat.js             # Gemini-powered AI assistant
+│   └── hello.js            # Health check
+├── vercel.json             # Security headers + CSP + caching
+├── package.json
 └── README.md
 ```
 
-### Load Order (critical for globals)
+## Key Features
 
-```html
-<script src="js/data/properties.js"></script>   <!-- state + data first -->
-<script src="js/utils/helpers.js"></script>     <!-- pure helpers -->
-<script src="js/app.js" defer></script>         <!-- everything else + DOMContentLoaded -->
-```
+- 100 curated luxury properties with 3D tilt cards
+- Favorites, compare (up to 3), advanced filters
+- AI Property Valuation + Investment projections
+- Global Land & Property Price Calculator (20+ currencies)
+- Full mortgage calculator with amortization
+- Multi-role dashboards (User / Agent / Admin / Analytics)
+- Atconiz AI chat (Gemini with model fallback)
+- Dark / Light theme with system preference awareness
+- Fully keyboard accessible modals with focus trap
 
-Because the original HTML uses many inline event handlers (`onclick="switchView(...)"`, `onsubmit="runAIValuation(event)"`, etc.), the functions remain in the global scope. This guarantees zero breakage.
-
-### Benefits of This Architecture
-
-| Aspect              | Before (monolith)          | After                              |
-|---------------------|----------------------------|------------------------------------|
-| File size           | 1 × ~145 KB                | HTML ~25 KB + CSS ~20 KB + JS split|
-| Concerns            | Mixed                      | Separated (markup / style / data / utils / logic) |
-| Team collaboration  | Painful                    | Multiple people can work in parallel |
-| Caching             | Single cache invalidation  | Independent cache for CSS & JS     |
-| Onboarding          | Overwhelming               | Clear entry points                 |
-| Future modules      | Hard                       | Folders already prepared           |
-| Behavior            | —                          | 100% identical                     |
-
-### Running
-
-Any static file server:
+## Running locally
 
 ```bash
-npx serve /path/to/atconiz
-# or
-python3 -m http.server 8080 --directory /path/to/atconiz
+npm install
+npx vercel dev
+# or pure static
+npx serve .
 ```
 
-Open the printed URL. The AI Assistant feature still expects a backend at `POST /api/chat` (unchanged from original).
+Set `GEMINI_API_KEY` in `.env` (see `.env.example`) or in the Vercel dashboard.
 
-### Next Evolution Steps (optional)
+## Design System
 
-1. Convert remaining large functions in `app.js` into focused modules under `js/features/` and `js/core/`.
-2. Switch to ES modules (`type="module"`) and explicitly `window.switchView = switchView` etc. only for the public API used by inline handlers.
-3. Introduce a lightweight state management object instead of many top-level `let`s.
-4. Add a simple build step (esbuild / Vite) later if tree-shaking or TypeScript is desired.
+The CSS now uses a proper token system:
 
-The current state is already a professional, maintainable codebase ready for a development team while being completely faithful to the original working application.
+- Spacing scale (`--space-*`)
+- Radius scale (`--radius-*`)
+- Elevation / shadow tokens
+- Motion tokens (`--ease-out`, durations)
+- Consistent focus rings and reduced-motion support
+
+## Accessibility Highlights
+
+- Skip link
+- Focus-visible styles
+- Modal focus trap + `aria-modal` + return focus
+- Proper `<button>` for primary actions
+- Live regions for toasts and chat
+- Reduced motion respected
+
+## Deployment
+
+Optimized for Vercel. Security headers (CSP, HSTS, X-Frame-Options, etc.) are configured in `vercel.json`.
+
+---
+
+Built with precision.

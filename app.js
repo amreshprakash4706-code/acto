@@ -7,14 +7,19 @@ function toggleMobileMenu() {
   
   if (!menu || !btn) return;
   
-  if (menu.style.display === 'flex') {
+  const isOpen = menu.style.display === 'flex';
+  if (isOpen) {
     menu.style.display = 'none';
     btn.innerHTML = '☰';
     btn.style.transform = 'rotate(0deg)';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Open menu');
   } else {
     menu.style.display = 'flex';
     btn.innerHTML = '✕';
     btn.style.transform = 'rotate(90deg)';
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', 'Close menu');
   }
 }
 
@@ -105,9 +110,9 @@ function createPropertyCard(prop, options = {}) {
   
   card.innerHTML = `
     <div class="image-container">
-      <img loading="lazy" src="${prop.images[0]}" alt="${prop.title}" style="width:100%; height:100%; object-fit:cover;">
+      <img loading="lazy" decoding="async" src="${prop.images[0]}" alt="${prop.title}" width="640" height="400" style="width:100%; height:100%; object-fit:cover;">
       <div class="card-overlay">
-        <button class="heart-btn ${isFavorited ? 'active' : ''}" onclick="event.stopImmediatePropagation(); toggleFavorite(${prop.id}, this)">♥</button>
+        <button type="button" class="heart-btn ${isFavorited ? 'active' : ''}" aria-label="${isFavorited ? 'Remove from saved' : 'Save property'}" aria-pressed="${isFavorited}" onclick="event.stopImmediatePropagation(); toggleFavorite(${prop.id}, this)">♥</button>
         ${showCompare ? `<label class="compare-checkbox" onclick="event.stopImmediatePropagation();"><input type="checkbox" onchange="toggleCompare(${prop.id}, this)" style="display:none;"><span style="font-size:15px;">⚖︎</span></label>` : ''}
       </div>
       <div style="position:absolute; bottom:14px; left:14px; background:rgba(0,0,0,0.65); color:white; padding:3px 11px; border-radius:9999px; font-size:12px; font-weight:600; backdrop-filter:blur(10px);">
@@ -149,23 +154,32 @@ function createPropertyCard(prop, options = {}) {
   return card;
 }
 
-/* 3D Tilt + Micro Interactions for Property Cards */
+/* 3D Tilt + Micro Interactions for Property Cards
+   Respects prefers-reduced-motion and skips on coarse pointers (touch). */
 function attachPremiumCardEffects(card) {
+  // Skip heavy motion for users who prefer reduced motion or on touch devices
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+  if (prefersReduced || isCoarse) {
+    // Still give a light hover lift via CSS (already defined)
+    return;
+  }
+
   let raf = null;
-  
+
   card.addEventListener('mousemove', (e) => {
     if (raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
       const rect = card.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) - 0.5;
       const y = ((e.clientY - rect.top) / rect.height) - 0.5;
-      
+
       card.style.transition = 'transform 0.08s ease-out';
       card.style.transform = `perspective(1100px) rotateX(${-y * 7}deg) rotateY(${x * 8}deg) translateY(-10px) scale(1.015)`;
       card.style.boxShadow = '0 40px 80px -20px rgb(0 0 0 / 0.5)';
     });
   });
-  
+
   card.addEventListener('mouseleave', () => {
     if (raf) cancelAnimationFrame(raf);
     card.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease';
@@ -306,9 +320,13 @@ function toggleFavorite(id, btn) {
   if (favorites.includes(id)) {
     favorites = favorites.filter(f => f !== id);
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Save property');
   } else {
     favorites.push(id);
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.setAttribute('aria-label', 'Remove from saved');
   }
   localStorage.setItem('atconiz_favorites', JSON.stringify(favorites));
   updateFavoritesCount();
@@ -1629,49 +1647,110 @@ function toggleAccordion(header) {
   }
 }
 
-// Modal System
+// Modal System (accessible + focus-trapped)
 let currentModal = null;
+let _modalPreviousFocus = null;
 
 function createModal(title, contentHTML, options = {}) {
-  if (currentModal) currentModal.remove();
-  
+  if (currentModal) closeCurrentModal(true);
+
+  _modalPreviousFocus = document.activeElement;
+
   const modal = document.createElement('div');
   modal.className = 'modal active';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', title);
+
+  const maxW = options.maxWidth || '920px';
   modal.innerHTML = `
-    <div class="modal-content glass" style="max-width: ${options.maxWidth || '920px'}; width: 100%; margin: 20px;">
+    <div class="modal-content glass" style="max-width: ${maxW}; width: 100%; margin: 20px;" role="document">
       <div style="padding: 28px 32px 0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--glass-border); padding-bottom:20px;">
-        <div style="font-size:22px; font-weight:700;">${title}</div>
-        <div onclick="closeCurrentModal()" style="width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; opacity:0.7; border-radius:50%;">×</div>
+        <h2 style="font-size:22px; font-weight:700; margin:0;">${title}</h2>
+        <button type="button" onclick="closeCurrentModal()" aria-label="Close dialog" style="width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; opacity:0.7; border-radius:50%; background:transparent; border:none; color:inherit;">×</button>
       </div>
       <div style="padding: 10px 8px 0;">
         ${contentHTML}
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
   currentModal = modal;
-  
+  document.body.style.overflow = 'hidden'; // prevent background scroll
+
+  // Focus the close button (or first focusable) after paint
+  requestAnimationFrame(() => {
+    const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusable) focusable.focus();
+  });
+
   modal.onclick = (e) => {
     if (e.target === modal) closeCurrentModal();
   };
-  
-  document.onkeydown = function(evt) {
-    if (evt.key === "Escape") closeCurrentModal();
+
+  // Focus trap + Escape
+  modal._keydownHandler = function(evt) {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      closeCurrentModal();
+      return;
+    }
+    if (evt.key !== 'Tab') return;
+
+    const focusables = Array.from(
+      modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter(el => !el.disabled && el.offsetParent !== null);
+
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (evt.shiftKey) {
+      if (document.activeElement === first) {
+        evt.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        evt.preventDefault();
+        first.focus();
+      }
+    }
   };
-  
+
+  document.addEventListener('keydown', modal._keydownHandler);
+
   return modal;
 }
 
-function closeCurrentModal() {
-  if (currentModal) {
-    currentModal.classList.remove('active');
-    setTimeout(() => {
-      if (currentModal && currentModal.parentNode) currentModal.parentNode.removeChild(currentModal);
-      currentModal = null;
-    }, 180);
+function closeCurrentModal(immediate = false) {
+  if (!currentModal) return;
+
+  const modal = currentModal;
+  if (modal._keydownHandler) {
+    document.removeEventListener('keydown', modal._keydownHandler);
   }
-  document.onkeydown = null;
+
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+
+  const cleanup = () => {
+    if (modal.parentNode) modal.parentNode.removeChild(modal);
+    if (currentModal === modal) currentModal = null;
+    // Restore focus
+    if (_modalPreviousFocus && typeof _modalPreviousFocus.focus === 'function') {
+      try { _modalPreviousFocus.focus(); } catch (_) {}
+    }
+    _modalPreviousFocus = null;
+  };
+
+  if (immediate) {
+    cleanup();
+  } else {
+    setTimeout(cleanup, 180);
+  }
 }
 
 function addToCompareFromModal(id) {

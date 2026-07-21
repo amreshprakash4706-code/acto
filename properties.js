@@ -17,13 +17,13 @@ const seededRandom = mulberry32(20260717); // fixed seed for reproducibility
 
 let properties = [];
 let filteredProperties = [];
-let favorites = JSON.parse(localStorage.getItem('atconiz_favorites')) || [];
+let favorites = (() => { try { return JSON.parse(localStorage.getItem('atconiz_favorites')) || []; } catch { return []; } })();
 let currentTheme = localStorage.getItem('atconiz_theme') || 'dark';
 let selectedForCompare = [];
 let currentView = 'landing';
-let reviewsData = JSON.parse(localStorage.getItem('atconiz_reviews')) || {};
-let visitsData = JSON.parse(localStorage.getItem('atconiz_visits')) || [];
-let savedCalculations = JSON.parse(localStorage.getItem('atconiz_calculations')) || [];
+let reviewsData = (() => { try { return JSON.parse(localStorage.getItem('atconiz_reviews')) || {}; } catch { return {}; } })();
+let visitsData = (() => { try { return JSON.parse(localStorage.getItem('atconiz_visits')) || []; } catch { return []; } })();
+let savedCalculations = (() => { try { return JSON.parse(localStorage.getItem('atconiz_calculations')) || []; } catch { return []; } })();
 let chatContext = {
   lastProperty: null,
   lastTopic: null
