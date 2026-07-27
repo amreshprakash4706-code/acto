@@ -1,13 +1,27 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// Primary: gemini-3.5-flash  |  Fallback: gemini-3.1-pro
-const MODELS = [
-  "gemini-3.5-flash",
-  "gemini-3.1-pro"
-];
+// Production model cascade – primary fast model, then higher-capability fallback
+const MODELS = ["gemini-2.0-flash", "gemini-1.5-flash"];
 
 const MAX_MESSAGE_LENGTH = 2000;
-const SYSTEM_PROMPT = `You are Atconiz AI, the private intelligence layer of Atconiz — a ultra-premium real-estate platform for high-net-worth clients in 2026.
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 20;
+
+// Simple in-memory rate limiter (per-instance; fine for serverless cold starts)
+const rateBuckets = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  let bucket = rateBuckets.get(ip);
+  if (!bucket || now - bucket.start > RATE_WINDOW_MS) {
+    bucket = { start: now, count: 0 };
+    rateBuckets.set(ip, bucket);
+  }
+  bucket.count += 1;
+  return bucket.count <= RATE_MAX;
+}
+
+const SYSTEM_PROMPT = `You are Atconiz AI, the private intelligence layer of Atconiz — an ultra-premium real-estate platform for high-net-worth clients in 2026.
 
 Personality & voice:
 - Sophisticated, precise, calm, and discreet (think private banker + top luxury agent)
@@ -28,14 +42,25 @@ Rules:
 - If asked for a price, give a reasoned range rather than a single number when data is incomplete.
 - Refuse any request that is illegal, harmful, or unrelated to real estate / wealth / lifestyle in a professional way.
 - Keep responses under 220 words unless the user explicitly asks for depth.
-- Current year is 2026.`;
+- Current year is 2026.
+- Do not discuss topics inappropriate for a general audience.`;
+
+const INJECTION_PATTERNS = [
+  /ignore\s+(previous|all|above|prior)/i,
+  /system\s+prompt/i,
+  /you\s+are\s+now/i,
+  /jailbreak/i,
+  /dan\s+mode/i,
+  /developer\s+mode/i,
+  /\[\s*system\s*\]/i,
+];
 
 module.exports = async (req, res) => {
-  // CORS — restrict in production if possible; * for demo convenience
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "OPTIONS") {
     return res.status(204).end();
@@ -46,7 +71,7 @@ module.exports = async (req, res) => {
       status: "Atconiz AI online",
       hasKey: Boolean(process.env.GEMINI_API_KEY),
       models: MODELS,
-      time: new Date().toISOString()
+      time: new Date().toISOString(),
     });
   }
 
@@ -55,46 +80,47 @@ module.exports = async (req, res) => {
   }
 
   try {
+    const ip =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      "unknown";
+
+    if (!checkRateLimit(ip)) {
+      return res.status(429).json({
+        error: "Too many requests. Please wait a moment before trying again.",
+      });
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
-        error: "GEMINI_API_KEY is missing. Add it in Vercel → Settings → Environment Variables."
+        error:
+          "GEMINI_API_KEY is missing. Add it in Vercel → Settings → Environment Variables.",
       });
     }
 
     const body = req.body || {};
     let message = (body.message || "").toString().trim();
 
-    // Basic validation & hardening
     if (!message) {
       return res.status(400).json({ error: "Message is required." });
     }
     if (message.length > MAX_MESSAGE_LENGTH) {
       return res.status(400).json({
-        error: `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.`
+        error: `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.`,
       });
     }
 
-    // Lightweight prompt-injection guard (not perfect, but raises the bar)
-    const lower = message.toLowerCase();
-    if (
-      lower.includes("ignore previous") ||
-      lower.includes("ignore all instructions") ||
-      lower.includes("system prompt") ||
-      lower.includes("you are now") ||
-      lower.includes("jailbreak")
-    ) {
+    if (INJECTION_PATTERNS.some((re) => re.test(message))) {
       return res.status(400).json({
-        error: "I can only assist with real-estate and investment questions."
+        error: "I can only assist with real-estate and investment questions.",
       });
     }
 
     const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
-    const fullPrompt = `${SYSTEM_PROMPT}
-
-User: ${message}`;
+    const fullPrompt = `${SYSTEM_PROMPT}\n\nUser: ${message}`;
 
     let lastError = null;
 
@@ -103,7 +129,6 @@ User: ${message}`;
         const response = await ai.models.generateContent({
           model,
           contents: fullPrompt,
-          // generationConfig could be added when supported by the SDK version
         });
 
         const reply =
@@ -112,8 +137,8 @@ User: ${message}`;
 
         if (reply && typeof reply === "string" && reply.trim()) {
           return res.status(200).json({
-            reply: reply.trim(),
-            model
+            reply: reply.trim().slice(0, 4000),
+            model,
           });
         }
       } catch (err) {
@@ -126,12 +151,12 @@ User: ${message}`;
       lastError?.message ||
       "All models are currently unavailable. Please try again shortly.";
     return res.status(503).json({
-      error: "AI temporarily unavailable: " + String(msg).slice(0, 160)
+      error: "AI temporarily unavailable: " + String(msg).slice(0, 160),
     });
   } catch (error) {
     console.error("Atconiz chat error:", error);
     return res.status(500).json({
-      error: "Internal AI error. Please try again."
+      error: "Internal AI error. Please try again.",
     });
   }
 };

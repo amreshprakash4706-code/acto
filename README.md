@@ -1,20 +1,26 @@
 # Atconiz — AI Real Estate Intelligence Platform
 
-Premium, production-oriented luxury real-estate intelligence platform powered by Gemini.
+Premium, production-ready luxury real-estate intelligence platform powered by Gemini.
 
-**Version 3.1** — Design system, accessibility, and performance upgrades applied.
+**Version 3.2** — Full modular architecture, security hardening, accessibility, and performance upgrades.
 
 ## Structure
 
 ```
 atconiz/
-├── index.html              # Markup + SPA views
-├── styles.css              # Full design system (tokens, glass, motion, a11y)
+├── index.html              # Semantic SPA markup + SEO
+├── styles.css              # Design system (tokens, components, a11y)
 ├── properties.js           # Seeded data + global state
-├── helpers.js              # formatPrice, debounce, toast
-├── app.js                  # All application logic
+├── helpers.js              # escapeHtml, formatPrice, debounce, toast
+├── js/
+│   ├── core.js             # Nav, theme, views, modals
+│   ├── cards.js            # Cards, filters, favorites, compare
+│   ├── details.js          # Property details, reviews, viewings
+│   ├── chat.js             # AI chat, valuation, investment
+│   ├── calculators.js      # Global price + mortgage calculators
+│   └── dashboards.js       # Dashboards, content, boot
 ├── api/
-│   ├── chat.js             # Gemini-powered AI assistant
+│   ├── chat.js             # Gemini AI (rate-limited, injection guards)
 │   └── hello.js            # Health check
 ├── vercel.json             # Security headers + CSP + caching
 ├── package.json
@@ -23,15 +29,16 @@ atconiz/
 
 ## Key Features
 
-- 100 curated luxury properties with 3D tilt cards
+- 100 curated luxury properties with 3D tilt cards (reduced-motion aware)
 - Favorites, compare (up to 3), advanced filters
 - AI Property Valuation + Investment projections
 - Global Land & Property Price Calculator (20+ currencies)
 - Full mortgage calculator with amortization
 - Multi-role dashboards (User / Agent / Admin / Analytics)
-- Atconiz AI chat (Gemini with model fallback)
+- Atconiz AI chat (Gemini with model fallback + rate limiting)
 - Dark / Light theme with system preference awareness
 - Fully keyboard accessible modals with focus trap
+- XSS-safe rendering for all dynamic content
 
 ## Running locally
 
@@ -44,28 +51,25 @@ npx serve .
 
 Set `GEMINI_API_KEY` in `.env` (see `.env.example`) or in the Vercel dashboard.
 
-## Design System
+## Security
 
-The CSS now uses a proper token system:
+- HTML escaping on all dynamic content
+- Prompt-injection guards on the AI endpoint
+- In-memory rate limiting (20 req/min/IP)
+- CSP, HSTS, X-Frame-Options, Permissions-Policy via `vercel.json`
+- Input length limits and sanitization
 
-- Spacing scale (`--space-*`)
-- Radius scale (`--radius-*`)
-- Elevation / shadow tokens
-- Motion tokens (`--ease-out`, durations)
-- Consistent focus rings and reduced-motion support
+## Accessibility
 
-## Accessibility Highlights
-
-- Skip link
-- Focus-visible styles
-- Modal focus trap + `aria-modal` + return focus
-- Proper `<button>` for primary actions
+- Skip link, focus-visible, modal focus trap + return focus
+- Proper `<button>` elements and ARIA roles
 - Live regions for toasts and chat
-- Reduced motion respected
+- `prefers-reduced-motion` respected (particles, tilt, counters)
+- Keyboard navigation throughout
 
 ## Deployment
 
-Optimized for Vercel. Security headers (CSP, HSTS, X-Frame-Options, etc.) are configured in `vercel.json`.
+Optimized for Vercel. Security headers are configured in `vercel.json`.
 
 ---
 

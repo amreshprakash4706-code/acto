@@ -1,10 +1,39 @@
 // ============================================
-// Atconiz – Pure Utility Helpers
+// Atconiz – Utility Helpers (Production)
 // ============================================
 
+/**
+ * Escape HTML to prevent XSS when inserting untrusted text into the DOM.
+ * Always use this (or textContent) for user-generated or external content.
+ */
+function escapeHtml(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Convert plain text to safe HTML with line breaks preserved.
+ */
+function textToSafeHtml(str) {
+  return escapeHtml(str).replace(/\n/g, "<br>");
+}
+
+/**
+ * Format a USD price (or convert via currency rate) for display.
+ */
 function formatPrice(price, currency = "USD") {
-  const curr = currencies[currency] || currencies["USD"];
-  const converted = price * curr.rate;
+  const curr = (typeof currencies !== "undefined" && currencies[currency]) || {
+    rate: 1,
+    symbol: "$",
+  };
+  const converted = Number(price) * curr.rate;
+
+  if (!Number.isFinite(converted)) return curr.symbol + "0";
 
   if (converted >= 1_000_000_000) {
     return curr.symbol + (converted / 1_000_000_000).toFixed(2) + "B";
@@ -19,8 +48,9 @@ function formatPrice(price, currency = "USD") {
 }
 
 function convertCurrency(amountUSD, toCurrency) {
-  const rate = currencies[toCurrency]?.rate || 1;
-  return amountUSD * rate;
+  const rate =
+    (typeof currencies !== "undefined" && currencies[toCurrency]?.rate) || 1;
+  return Number(amountUSD) * rate;
 }
 
 function debounce(func, wait = 280) {
@@ -35,7 +65,7 @@ function debounce(func, wait = 280) {
   };
 }
 
-// Single shared debounced instance (critical fix)
+// Single shared debounced filter instance
 const _debouncedApplyFilters = debounce(() => {
   if (typeof applyFilters === "function") applyFilters();
 }, 280);
@@ -44,6 +74,9 @@ function debounceSearch() {
   _debouncedApplyFilters();
 }
 
+/**
+ * Accessible toast notifications. Uses textContent only (no innerHTML for messages).
+ */
 function showToast(message, type = "success") {
   const container = document.getElementById("toast-container");
   if (!container) return;
@@ -52,11 +85,11 @@ function showToast(message, type = "success") {
   toast.className = "toast";
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
-  toast.style.borderLeft = type === "success"
-    ? "4px solid var(--success)"
-    : "4px solid var(--danger)";
+  toast.style.borderLeft =
+    type === "success"
+      ? "4px solid var(--success)"
+      : "4px solid var(--danger)";
 
-  // Safe text content (no innerHTML for user-facing messages)
   const content = document.createElement("div");
   content.style.flex = "1";
 
@@ -76,15 +109,17 @@ function showToast(message, type = "success") {
   const closeBtn = document.createElement("button");
   closeBtn.type = "button";
   closeBtn.setAttribute("aria-label", "Dismiss notification");
-  closeBtn.style.cssText = "cursor:pointer;padding:4px 6px;opacity:0.6;background:none;border:none;color:inherit;font-size:16px;line-height:1;";
+  closeBtn.className = "toast-close";
   closeBtn.textContent = "✕";
-  closeBtn.onclick = () => toast.remove();
+  closeBtn.onclick = () => {
+    if (toast._timer) clearTimeout(toast._timer);
+    toast.remove();
+  };
 
   toast.appendChild(content);
   toast.appendChild(closeBtn);
   container.appendChild(toast);
 
-  // Auto-dismiss
   const timer = setTimeout(() => {
     if (toast.parentNode) {
       toast.style.opacity = "0";
@@ -94,6 +129,47 @@ function showToast(message, type = "success") {
     }
   }, 4800);
 
-  // Allow manual clear of timer if needed
   toast._timer = timer;
+}
+
+/**
+ * Safe localStorage helpers (never throw).
+ */
+function safeGetJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw == null) return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function safeSetJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* quota / private mode */
+  }
+}
+
+/**
+ * Clamp a number into a range.
+ */
+function clamp(n, min, max) {
+  return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * Prefer reduced motion?
+ */
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * Coarse pointer (touch) device?
+ */
+function isCoarsePointer() {
+  return window.matchMedia("(pointer: coarse)").matches;
 }

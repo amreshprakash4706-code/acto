@@ -381,11 +381,11 @@
   </div>
 
   <!-- Dashboard Tabs -->
-  <div style="display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 1px solid var(--glass-border); padding-bottom: 4px;">
-    <div onclick="switchDashboardTab('user')" class="dashboard-tab active" id="tab-user" style="padding: 12px 28px; border-radius: 9999px; cursor: pointer; font-weight: 600;">User Dashboard</div>
-    <div onclick="switchDashboardTab('agent')" class="dashboard-tab" id="tab-agent" style="padding: 12px 28px; border-radius: 9999px; cursor: pointer; font-weight: 600;">Agent Dashboard</div>
-    <div onclick="switchDashboardTab('admin')" class="dashboard-tab" id="tab-admin" style="padding: 12px 28px; border-radius: 9999px; cursor: pointer; font-weight: 600;">Admin Dashboard</div>
-    <div onclick="switchDashboardTab('analytics')" class="dashboard-tab" id="tab-analytics" style="padding: 12px 28px; border-radius: 9999px; cursor: pointer; font-weight: 600;">Analytics</div>
+  <div role="tablist" aria-label="Dashboard views" style="display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 1px solid var(--glass-border); padding-bottom: 4px; flex-wrap: wrap;">
+    <button type="button" onclick="switchDashboardTab('user')" class="dashboard-tab active" id="tab-user" role="tab" aria-selected="true">User Dashboard</button>
+    <button type="button" onclick="switchDashboardTab('agent')" class="dashboard-tab" id="tab-agent" role="tab" aria-selected="false">Agent Dashboard</button>
+    <button type="button" onclick="switchDashboardTab('admin')" class="dashboard-tab" id="tab-admin" role="tab" aria-selected="false">Admin Dashboard</button>
+    <button type="button" onclick="switchDashboardTab('analytics')" class="dashboard-tab" id="tab-analytics" role="tab" aria-selected="false">Analytics</button>
   </div>
 
   <!-- USER DASHBOARD -->
@@ -612,7 +612,7 @@
 </footer>
 
 <!-- Floating AI Button -->
-<button type="button" onclick="openAIChat()" aria-label="Open Atconiz AI Assistant" class="btn" style="position: fixed; bottom: 32px; right: 32px; width: 60px; height: 60px; padding: 0; background: linear-gradient(135deg, var(--accent), #67e8f9); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgb(34 211 238 / 0.45); z-index: 950; border: none;">
+<button type="button" onclick="openAIChat()" aria-label="Open Atconiz AI Assistant" class="fab-ai">
   <span style="font-size: 26px; color: #0a0b12; pointer-events: none;" aria-hidden="true">✦</span>
 </button>
 
@@ -621,6 +621,11 @@
 
 <script src="properties.js"></script>
 <script src="helpers.js"></script>
-<script src="app.js" defer></script>
+<script src="js/core.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/details.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/calculators.js"></script>
+<script src="js/dashboards.js"></script>
 </body>
 </html>
