@@ -86,11 +86,12 @@ function switchView(view) {
   }
   const menu = document.getElementById("mobile-menu");
   if (menu && menu.style.display === "flex") toggleMobileMenu();
-  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  window.scrollTo({ top: 0, behavior: (typeof prefersReducedMotion === "function" && prefersReducedMotion()) ? "auto" : "smooth" });
 }
 
 /* Modal system */
 function createModal(title, contentHTML, options = {}) {
+  if (typeof currentModal === "undefined") window.currentModal = null;
   if (currentModal) closeCurrentModal(true);
   _modalPreviousFocus = document.activeElement;
   const modal = document.createElement("div");
@@ -102,7 +103,7 @@ function createModal(title, contentHTML, options = {}) {
   modal.innerHTML = `
     <div class="modal-content glass" style="max-width:${maxW};width:100%;margin:20px;" role="document">
       <div class="modal-header">
-        <h2 class="modal-title">${escapeHtml(title)}</h2>
+        <h2 class="modal-title">${(typeof escapeHtml==="function"?escapeHtml(title):String(title||""))}</h2>
         <button type="button" class="modal-close" onclick="closeCurrentModal()" aria-label="Close dialog">×</button>
       </div>
       <div style="padding:10px 8px 0;">${contentHTML}</div>

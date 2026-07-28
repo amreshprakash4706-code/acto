@@ -41,6 +41,21 @@ let chatContext = { lastProperty: null, lastTopic: null };
 let selectedTime = null;
 let currentModal = null;
 let _modalPreviousFocus = null;
+if (typeof window !== "undefined") {
+  window.currentModal = currentModal;
+  window._modalPreviousFocus = _modalPreviousFocus;
+  // Keep window.currentModal in sync via accessors used by core
+  Object.defineProperty(window, "currentModal", {
+    get() { return currentModal; },
+    set(v) { currentModal = v; },
+    configurable: true,
+  });
+  Object.defineProperty(window, "_modalPreviousFocus", {
+    get() { return _modalPreviousFocus; },
+    set(v) { _modalPreviousFocus = v; },
+    configurable: true,
+  });
+}
 let chatHistory = [];
 
 // ── Global land & currency data (2026 reference rates) ──

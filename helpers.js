@@ -2,6 +2,13 @@
 // Atconiz – Utility Helpers (Production)
 // ============================================
 
+// Ensure critical globals exist even if other scripts fail to load
+if (typeof window !== "undefined") {
+  if (typeof window.currentModal === "undefined") window.currentModal = null;
+  if (typeof window._modalPreviousFocus === "undefined") window._modalPreviousFocus = null;
+}
+
+
 /**
  * Escape HTML to prevent XSS when inserting untrusted text into the DOM.
  * Always use this (or textContent) for user-generated or external content.
@@ -172,4 +179,21 @@ function prefersReducedMotion() {
  */
 function isCoarsePointer() {
   return window.matchMedia("(pointer: coarse)").matches;
+}
+
+
+// Expose helpers on window for cross-script access (classic scripts)
+if (typeof window !== "undefined") {
+  window.escapeHtml = escapeHtml;
+  window.textToSafeHtml = textToSafeHtml;
+  window.formatPrice = formatPrice;
+  window.convertCurrency = convertCurrency;
+  window.debounce = debounce;
+  window.debounceSearch = debounceSearch;
+  window.showToast = showToast;
+  window.safeGetJSON = safeGetJSON;
+  window.safeSetJSON = safeSetJSON;
+  window.clamp = clamp;
+  window.prefersReducedMotion = prefersReducedMotion;
+  window.isCoarsePointer = isCoarsePointer;
 }

@@ -2,6 +2,29 @@
    ATCONIZ – Property Cards, Filters, Favorites, Compare
    ========================================================================== */
 
+// Local safety wrappers (in case helpers.js did not load)
+function _esc(str) {
+  if (typeof escapeHtml === "function") return _esc(str);
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+function _reducedMotion() {
+  return typeof prefersReducedMotion === "function"
+    ? _reducedMotion()
+    : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+function _coarsePointer() {
+  return typeof isCoarsePointer === "function"
+    ? _coarsePointer()
+    : window.matchMedia("(pointer: coarse)").matches;
+}
+
+
 function createPropertyCard(prop, options = {}) {
   const card = document.createElement("div");
   card.className = "property-card";
@@ -11,12 +34,12 @@ function createPropertyCard(prop, options = {}) {
 
   const isFavorited = favorites.includes(prop.id);
   const showCompare = options.showCompare !== false;
-  const imgSrc = escapeHtml(prop.images[0] || "");
-  const title = escapeHtml(prop.title);
-  const city = escapeHtml(prop.location.city);
-  const country = escapeHtml(prop.location.country);
-  const type = escapeHtml(prop.type);
-  const status = escapeHtml(prop.status);
+  const imgSrc = _esc(prop.images[0] || "");
+  const title = _esc(prop.title);
+  const city = _esc(prop.location.city);
+  const country = _esc(prop.location.country);
+  const type = _esc(prop.type);
+  const status = _esc(prop.status);
 
   card.innerHTML = `
     <div class="image-container">
@@ -78,7 +101,7 @@ function createPropertyCard(prop, options = {}) {
 }
 
 function attachPremiumCardEffects(card) {
-  if (prefersReducedMotion() || isCoarsePointer()) return;
+  if (_reducedMotion() || _coarsePointer()) return;
   let raf = null;
   card.addEventListener("mousemove", (e) => {
     if (raf) cancelAnimationFrame(raf);
@@ -157,7 +180,7 @@ function resetFilters() {
 function showAdvancedFiltersModal() {
   const types = ["Luxury Villa", "Modern Penthouse", "Mountain Retreat", "Historic Mansion", "Urban Loft"];
   const typeChips = types.map((t) =>
-    `<button type="button" class="filter-chip" data-type="${escapeHtml(t)}" onclick="this.classList.toggle('active')">${escapeHtml(t)}</button>`
+    `<button type="button" class="filter-chip" data-type="${_esc(t)}" onclick="this.classList.toggle('active')">${_esc(t)}</button>`
   ).join("");
   const modal = createModal("Advanced Filters", `
     <div style="padding:12px 8px 30px;">
@@ -293,7 +316,7 @@ function showCompareModal() {
   let html = `<div style="padding:20px 10px 40px;overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:820px;"><thead><tr><th scope="col" style="text-align:left;padding:16px 12px;border-bottom:1px solid var(--glass-border);width:160px;"></th>`;
   props.forEach((p) => {
     html += `<th scope="col" style="padding:16px 12px;border-bottom:1px solid var(--glass-border);text-align:left;min-width:240px;">
-      <div style="font-weight:700;">${escapeHtml(p.title)}</div>
+      <div style="font-weight:700;">${_esc(p.title)}</div>
       <div style="color:var(--accent);font-size:19px;font-weight:700;margin:6px 0;">${formatPrice(p.price)}</div></th>`;
   });
   html += `</tr></thead><tbody>`;
@@ -309,8 +332,8 @@ function showCompareModal() {
     { label: "Status", get: (p) => p.status },
   ];
   rows.forEach((row) => {
-    html += `<tr><th scope="row" style="padding:14px 12px;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--glass-border);text-align:left;">${escapeHtml(row.label)}</th>`;
-    props.forEach((p) => { html += `<td style="padding:14px 12px;border-bottom:1px solid var(--glass-border);">${escapeHtml(String(row.get(p)))}</td>`; });
+    html += `<tr><th scope="row" style="padding:14px 12px;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--glass-border);text-align:left;">${_esc(row.label)}</th>`;
+    props.forEach((p) => { html += `<td style="padding:14px 12px;border-bottom:1px solid var(--glass-border);">${_esc(String(row.get(p)))}</td>`; });
     html += `</tr>`;
   });
   html += `</tbody></table></div>`;
