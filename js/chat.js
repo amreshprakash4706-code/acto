@@ -1,51 +1,131 @@
 /* ==========================================================================
-   ATCONIZ – AI Chat, Valuation, Investment Analysis
+   ATCONIZ – AI Chat (floating panel), Valuation, Investment Analysis
+   Powered by Gemini 3.6 Flash
    ========================================================================== */
 
+let _aiPanelMinimized = false;
+
 function openAIChat() {
-  createModal("Atconiz AI Assistant", `
-    <div style="height:580px;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;">
-      <div style="padding:18px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:12px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0a0b12;font-weight:800;font-size:15px;" aria-hidden="true">A</div>
+  // If panel already exists, restore it
+  const existing = document.getElementById("atconiz-ai-panel");
+  if (existing) {
+    existing.classList.remove("ai-panel-minimized", "ai-panel-hidden");
+    _aiPanelMinimized = false;
+    document.getElementById("chat-input")?.focus();
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.id = "atconiz-ai-panel";
+  panel.className = "ai-floating-panel";
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", "Atconiz AI Assistant");
+  panel.innerHTML = `
+    <div class="ai-panel-titlebar" id="ai-panel-drag">
+      <div class="ai-panel-title-left">
+        <div class="ai-panel-avatar" aria-hidden="true">A</div>
         <div>
-          <div style="font-weight:700;font-size:16px;">Atconiz AI</div>
-          <div style="font-size:12px;color:var(--success);">● Online • Gemini</div>
+          <div class="ai-panel-name">Atconiz AI</div>
+          <div class="ai-panel-status"><span class="ai-status-dot"></span> Online • Gemini 3.6 Flash</div>
         </div>
       </div>
-      <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"
-        style="flex:1;padding:24px;overflow-y:auto;background:var(--bg-primary);display:flex;flex-direction:column;gap:16px;"></div>
-      <div style="padding:12px 20px 8px;background:var(--bg-secondary);border-top:1px solid var(--glass-border);">
-        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;padding-left:4px;">SUGGESTED</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button type="button" onclick="useSuggestedPrompt(this)" class="filter-chip" style="font-size:12.5px;padding:7px 14px;">Find oceanfront villas in Malibu under $25M</button>
-          <button type="button" onclick="useSuggestedPrompt(this)" class="filter-chip" style="font-size:12.5px;padding:7px 14px;">Best investment properties in Dubai 2026</button>
-          <button type="button" onclick="useSuggestedPrompt(this)" class="filter-chip" style="font-size:12.5px;padding:7px 14px;">Compare Beverly Hills vs Aspen homes</button>
-        </div>
+      <div class="ai-panel-controls">
+        <button type="button" class="ai-panel-btn" onclick="minimizeAIPanel()" aria-label="Minimize">−</button>
+        <button type="button" class="ai-panel-btn" onclick="closeAIPanel()" aria-label="Close">×</button>
       </div>
-      <div style="padding:18px 24px;border-top:1px solid var(--glass-border);background:var(--bg-secondary);">
-        <div style="display:flex;gap:10px;">
-          <input id="chat-input" type="text" placeholder="Ask anything about properties or markets..." maxlength="2000"
-            style="flex:1;border-radius:9999px;padding:15px 22px;font-size:15px;"
-            aria-label="Message to Atconiz AI"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();sendChatMessage();}">
-          <button type="button" onclick="sendChatMessage()" class="btn btn-primary" style="border-radius:9999px;padding:0 30px;height:50px;">Send</button>
-        </div>
-        <div style="font-size:10.5px;text-align:center;margin-top:10px;color:var(--text-secondary);">Powered by Gemini • Real-time intelligence</div>
-      </div>
-    </div>`, { maxWidth: "740px" });
+    </div>
+    <div id="chat-messages" class="ai-panel-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div class="ai-panel-suggestions">
+      <button type="button" onclick="useSuggestedPrompt(this)" class="ai-suggest-chip">Oceanfront villas in Malibu under $25M</button>
+      <button type="button" onclick="useSuggestedPrompt(this)" class="ai-suggest-chip">Best Dubai investments 2026</button>
+      <button type="button" onclick="useSuggestedPrompt(this)" class="ai-suggest-chip">Beverly Hills vs Aspen</button>
+    </div>
+    <div class="ai-panel-input-row">
+      <input id="chat-input" type="text" placeholder="Ask anything or give a command..." maxlength="2000"
+        aria-label="Message to Atconiz AI"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();sendChatMessage();}">
+      <button type="button" onclick="sendChatMessage()" class="ai-send-btn" aria-label="Send message">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  // Gentle entrance
+  requestAnimationFrame(() => panel.classList.add("ai-panel-visible"));
+
+  // Make title bar draggable
+  enableAIPanelDrag(panel);
 
   setTimeout(() => {
     const container = document.getElementById("chat-messages");
     if (container && container.children.length === 0) {
-      addChatMessage("ai", "Hello! I'm Atconiz AI — your personal real estate intelligence assistant. I can help with property insights, valuations, market advice, lifestyle matching, and more. How can I assist you today?");
+      addChatMessage(
+        "ai",
+        "Hello! I'm Atconiz AI — your private real-estate intelligence layer, powered by Gemini 3.6 Flash. I can help with valuations, market insights, lifestyle fit, and investment framing. How can I assist you today?"
+      );
     }
     document.getElementById("chat-input")?.focus();
-  }, 300);
+  }, 280);
+}
+
+function minimizeAIPanel() {
+  const panel = document.getElementById("atconiz-ai-panel");
+  if (!panel) return;
+  _aiPanelMinimized = !_aiPanelMinimized;
+  panel.classList.toggle("ai-panel-minimized", _aiPanelMinimized);
+}
+
+function closeAIPanel() {
+  const panel = document.getElementById("atconiz-ai-panel");
+  if (!panel) return;
+  panel.classList.remove("ai-panel-visible");
+  panel.classList.add("ai-panel-hidden");
+  setTimeout(() => panel.remove(), 220);
+  _aiPanelMinimized = false;
+}
+
+function enableAIPanelDrag(panel) {
+  const bar = panel.querySelector("#ai-panel-drag");
+  if (!bar) return;
+  let dragging = false;
+  let startX = 0, startY = 0, origX = 0, origY = 0;
+
+  bar.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".ai-panel-btn")) return;
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = panel.getBoundingClientRect();
+    origX = rect.left;
+    origY = rect.top;
+    panel.style.transition = "none";
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    panel.style.left = Math.max(8, origX + dx) + "px";
+    panel.style.top = Math.max(8, origY + dy) + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    panel.style.transition = "";
+  });
 }
 
 function useSuggestedPrompt(el) {
   const input = document.getElementById("chat-input");
-  if (input) { input.value = el.textContent.trim(); sendChatMessage(); }
+  if (input) {
+    input.value = el.textContent.trim();
+    sendChatMessage();
+  }
 }
 
 function addChatMessage(sender, text) {
@@ -68,12 +148,18 @@ async function sendChatMessage() {
   input.disabled = true;
 
   const messagesContainer = document.getElementById("chat-messages");
+  if (!messagesContainer) {
+    input.disabled = false;
+    return;
+  }
+
   const typingDiv = document.createElement("div");
   typingDiv.className = "chat-message ai";
   typingDiv.id = "typing-indicator";
   typingDiv.setAttribute("aria-busy", "true");
   typingDiv.style.opacity = "0.85";
-  typingDiv.innerHTML = '<span class="thinking-dots">Atconiz is thinking<span>.</span><span>.</span><span>.</span></span>';
+  typingDiv.innerHTML =
+    '<span class="thinking-dots">Atconiz is thinking<span>.</span><span>.</span><span>.</span></span>';
   messagesContainer.appendChild(typingDiv);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -85,16 +171,28 @@ async function sendChatMessage() {
     });
     document.getElementById("typing-indicator")?.remove();
     let data = {};
-    try { data = await response.json(); } catch {
-      addChatMessage("ai", "Server returned an invalid response (status " + response.status + "). Please try again.");
+    try {
+      data = await response.json();
+    } catch {
+      addChatMessage(
+        "ai",
+        "Server returned an invalid response (status " + response.status + "). Please try again."
+      );
       return;
     }
     if (data.reply) addChatMessage("ai", data.reply);
     else if (data.error) addChatMessage("ai", data.error);
-    else addChatMessage("ai", "Sorry, I couldn't get a response right now (status " + response.status + ").");
+    else
+      addChatMessage(
+        "ai",
+        "Sorry, I couldn't get a response right now (status " + response.status + ")."
+      );
   } catch (error) {
     document.getElementById("typing-indicator")?.remove();
-    addChatMessage("ai", "Network error: Could not reach Atconiz AI. Please check your connection or try again later.");
+    addChatMessage(
+      "ai",
+      "Network error: Could not reach Atconiz AI. Please check your connection or try again later."
+    );
     console.error("Chat error:", error);
   } finally {
     input.disabled = false;

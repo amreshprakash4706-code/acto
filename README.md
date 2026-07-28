@@ -35,7 +35,7 @@ atconiz/
 - Global Land & Property Price Calculator (20+ currencies)
 - Full mortgage calculator with amortization
 - Multi-role dashboards (User / Agent / Admin / Analytics)
-- Atconiz AI chat (Gemini with model fallback + rate limiting)
+- Atconiz AI chat (Gemini 3.6 Flash with model fallback + rate limiting)
 - Dark / Light theme with system preference awareness
 - Fully keyboard accessible modals with focus trap
 - XSS-safe rendering for all dynamic content

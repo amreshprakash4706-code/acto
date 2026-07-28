@@ -1233,3 +1233,273 @@ label {
 img[loading="lazy"] {
   background: var(--bg-tertiary);
 }
+
+/* ---------- Floating AI Panel (Trosmos-style) ---------- */
+.ai-floating-panel {
+  position: fixed;
+  right: 28px;
+  bottom: 100px;
+  width: min(420px, calc(100vw - 32px));
+  height: min(580px, calc(100vh - 120px));
+  background: rgba(17, 19, 31, 0.92);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 64px -12px rgb(0 0 0 / 0.55),
+    0 0 0 1px rgba(34, 211, 238, 0.08),
+    0 0 40px -12px rgba(34, 211, 238, 0.25);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  transition:
+    opacity 0.28s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 0.28s cubic-bezier(0.23, 1, 0.32, 1),
+    height 0.28s cubic-bezier(0.23, 1, 0.32, 1);
+  font-family: var(--font-sans);
+}
+.ai-floating-panel.ai-panel-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.ai-floating-panel.ai-panel-hidden {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+  pointer-events: none;
+}
+.ai-floating-panel.ai-panel-minimized {
+  height: 56px;
+}
+.ai-floating-panel.ai-panel-minimized .ai-panel-messages,
+.ai-floating-panel.ai-panel-minimized .ai-panel-suggestions,
+.ai-floating-panel.ai-panel-minimized .ai-panel-input-row {
+  display: none;
+}
+
+.light .ai-floating-panel {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 24px 64px -12px rgb(0 0 0 / 0.18),
+    0 0 0 1px rgba(6, 182, 212, 0.1);
+}
+
+.ai-panel-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--glass-border);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.03);
+}
+.ai-panel-titlebar:active { cursor: grabbing; }
+
+.ai-panel-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ai-panel-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  color: #0a0b12;
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(34, 211, 238, 0.35);
+}
+
+.ai-panel-name {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.ai-panel-status {
+  font-size: 11.5px;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ai-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  animation: pulse 2s infinite;
+}
+
+.ai-panel-controls {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ai-panel-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  font-family: inherit;
+  padding: 0;
+}
+.ai-panel-btn:hover {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+}
+
+.ai-panel-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent;
+  min-height: 0;
+}
+
+.ai-panel-messages .chat-message {
+  max-width: 88%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.ai-panel-messages .chat-message.user {
+  background: linear-gradient(135deg, var(--accent) 0%, #67e8f9 100%);
+  color: #0a0b12;
+  margin-left: auto;
+  border-bottom-right-radius: 5px;
+  font-weight: 500;
+}
+
+.ai-panel-messages .chat-message.ai {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.85), rgba(139, 92, 246, 0.75));
+  border: none;
+  color: #f8fafc;
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.35);
+}
+
+.light .ai-panel-messages .chat-message.ai {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+}
+
+.ai-panel-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 14px 10px;
+  flex-shrink: 0;
+}
+
+.ai-suggest-chip {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  font-family: inherit;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-suggest-chip:hover {
+  border-color: rgba(34, 211, 238, 0.4);
+  color: var(--text-primary);
+  background: var(--accent-soft);
+}
+
+.ai-panel-input-row {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px 16px;
+  border-top: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.light .ai-panel-input-row {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.ai-panel-input-row input {
+  flex: 1;
+  border-radius: 9999px;
+  padding: 12px 18px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--glass-border);
+}
+
+.ai-send-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #67e8f9);
+  color: #0a0b12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 16px -4px rgba(34, 211, 238, 0.45);
+  padding: 0;
+}
+.ai-send-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 10px 22px -4px rgba(34, 211, 238, 0.55);
+}
+.ai-send-btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 480px) {
+  .ai-floating-panel {
+    right: 12px;
+    left: 12px;
+    bottom: 80px;
+    width: auto;
+    height: min(70vh, 520px);
+  }
+}

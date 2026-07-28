@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// Production model cascade – primary fast model, then higher-capability fallback
+// Production model cascade – Gemini 3.6 Flash primary, with sensible fallbacks
 const MODELS = ["gemini-3.6-flash"];
 
 const MAX_MESSAGE_LENGTH = 2000;
