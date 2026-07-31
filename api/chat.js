@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 
 // Production model cascade – Gemini 3.6 Flash primary, with sensible fallbacks
-const MODELS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-flash"];
+const MODELS = ["gemini-3.6-flash"];
 
 const MAX_MESSAGE_LENGTH = 2000;
 const RATE_WINDOW_MS = 60_000;
