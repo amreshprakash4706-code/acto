@@ -2,9 +2,9 @@
    ATCONIZ – Property Cards, Filters, Favorites, Compare
    ========================================================================== */
 
-// Local safety wrappers (in case helpers.js did not load)
+// Local safety wrappers (in case helpers.js did not load or globals are shadowed)
 function _esc(str) {
-  if (typeof escapeHtml === "function") return _esc(str);
+  if (typeof escapeHtml === "function") return escapeHtml(str);
   if (str == null) return "";
   return String(str)
     .replace(/&/g, "&amp;")
@@ -14,14 +14,12 @@ function _esc(str) {
     .replace(/'/g, "&#39;");
 }
 function _reducedMotion() {
-  return typeof prefersReducedMotion === "function"
-    ? _reducedMotion()
-    : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof prefersReducedMotion === "function") return prefersReducedMotion();
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 function _coarsePointer() {
-  return typeof isCoarsePointer === "function"
-    ? _coarsePointer()
-    : window.matchMedia("(pointer: coarse)").matches;
+  if (typeof isCoarsePointer === "function") return isCoarsePointer();
+  return window.matchMedia("(pointer: coarse)").matches;
 }
 
 

@@ -86,62 +86,97 @@ function switchView(view) {
   }
   const menu = document.getElementById("mobile-menu");
   if (menu && menu.style.display === "flex") toggleMobileMenu();
-  window.scrollTo({ top: 0, behavior: (typeof prefersReducedMotion === "function" && prefersReducedMotion()) ? "auto" : "smooth" });
+  // Prefer reduced-motion when available (always go through window to avoid ReferenceError)
+  const reduced =
+    (typeof window.prefersReducedMotion === "function" && window.prefersReducedMotion()) ||
+    (typeof prefersReducedMotion === "function" && prefersReducedMotion()) ||
+    false;
+  window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
 }
 
-/* Modal system */
+/* Modal system — always use window.currentModal so classic scripts never hit ReferenceError */
 function createModal(title, contentHTML, options = {}) {
-  if (typeof currentModal === "undefined") window.currentModal = null;
-  if (currentModal) closeCurrentModal(true);
-  _modalPreviousFocus = document.activeElement;
+  if (window.currentModal) closeCurrentModal(true);
+  window._modalPreviousFocus = document.activeElement;
   const modal = document.createElement("div");
   modal.className = "modal active";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-label", title);
   const maxW = options.maxWidth || "920px";
+  const safeTitle =
+    typeof escapeHtml === "function"
+      ? escapeHtml(title)
+      : String(title || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
   modal.innerHTML = `
     <div class="modal-content glass" style="max-width:${maxW};width:100%;margin:20px;" role="document">
       <div class="modal-header">
-        <h2 class="modal-title">${(typeof escapeHtml==="function"?escapeHtml(title):String(title||""))}</h2>
+        <h2 class="modal-title">${safeTitle}</h2>
         <button type="button" class="modal-close" onclick="closeCurrentModal()" aria-label="Close dialog">×</button>
       </div>
       <div style="padding:10px 8px 0;">${contentHTML}</div>
     </div>`;
   document.body.appendChild(modal);
-  currentModal = modal;
+  window.currentModal = modal;
   document.body.style.overflow = "hidden";
   requestAnimationFrame(() => {
-    const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const focusable = modal.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
     if (focusable) focusable.focus();
   });
-  modal.onclick = (e) => { if (e.target === modal) closeCurrentModal(); };
+  modal.onclick = (e) => {
+    if (e.target === modal) closeCurrentModal();
+  };
   modal._keydownHandler = function (evt) {
-    if (evt.key === "Escape") { evt.preventDefault(); closeCurrentModal(); return; }
+    if (evt.key === "Escape") {
+      evt.preventDefault();
+      closeCurrentModal();
+      return;
+    }
     if (evt.key !== "Tab") return;
-    const focusables = Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter((el) => !el.disabled && el.offsetParent !== null);
+    const focusables = Array.from(
+      modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.disabled && el.offsetParent !== null);
     if (!focusables.length) return;
-    const first = focusables[0], last = focusables[focusables.length - 1];
-    if (evt.shiftKey) { if (document.activeElement === first) { evt.preventDefault(); last.focus(); } }
-    else if (document.activeElement === last) { evt.preventDefault(); first.focus(); }
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (evt.shiftKey) {
+      if (document.activeElement === first) {
+        evt.preventDefault();
+        last.focus();
+      }
+    } else if (document.activeElement === last) {
+      evt.preventDefault();
+      first.focus();
+    }
   };
   document.addEventListener("keydown", modal._keydownHandler);
   return modal;
 }
 
 function closeCurrentModal(immediate = false) {
-  if (!currentModal) return;
-  const modal = currentModal;
+  if (!window.currentModal) return;
+  const modal = window.currentModal;
   if (modal._keydownHandler) document.removeEventListener("keydown", modal._keydownHandler);
   modal.classList.remove("active");
   document.body.style.overflow = "";
   const cleanup = () => {
     if (modal.parentNode) modal.parentNode.removeChild(modal);
-    if (currentModal === modal) currentModal = null;
-    if (_modalPreviousFocus && typeof _modalPreviousFocus.focus === "function") {
-      try { _modalPreviousFocus.focus(); } catch (_) {}
+    if (window.currentModal === modal) window.currentModal = null;
+    const prev = window._modalPreviousFocus;
+    if (prev && typeof prev.focus === "function") {
+      try {
+        prev.focus();
+      } catch (_) {}
     }
-    _modalPreviousFocus = null;
+    window._modalPreviousFocus = null;
   };
   if (immediate) cleanup();
   else setTimeout(cleanup, 180);
