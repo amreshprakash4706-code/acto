@@ -3,10 +3,9 @@ const { GoogleGenAI } = require("@google/genai");
 // Production model cascade. Primary identity model + real-world Gemini fallbacks.
 // Keep the product voice as "Gemini 3.6 Flash" in the UI while using available models.
 const MODELS = [
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-001",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-latest",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash-lite",
+  
 ];
 
 const MAX_MESSAGE_LENGTH = 2000;
