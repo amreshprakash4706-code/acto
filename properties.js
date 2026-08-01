@@ -21,7 +21,9 @@ let filteredProperties = [];
 let favorites = safeGetJSON ? safeGetJSON("atconiz_favorites", []) : (() => {
   try { return JSON.parse(localStorage.getItem("atconiz_favorites")) || []; } catch { return []; }
 })();
-let currentTheme = localStorage.getItem("atconiz_theme") || "dark";
+let currentTheme = (() => {
+  try { return localStorage.getItem("atconiz_theme") || "dark"; } catch { return "dark"; }
+})();
 /** @type {number[]} */
 let selectedForCompare = [];
 let currentView = "landing";

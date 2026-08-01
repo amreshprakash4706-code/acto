@@ -2,7 +2,7 @@
 
 Premium, production-ready luxury real-estate intelligence platform powered by Gemini.
 
-**Version 3.2** — Full modular architecture, security hardening, accessibility, and performance upgrades.
+**Version 3.3** — Production hardening: stronger AI security & fallbacks, resilient chat UX with retry, calculator validation, image fallbacks, polished motion/accessibility, and refined light/mobile experience.
 
 ## Structure
 
@@ -74,3 +74,13 @@ Optimized for Vercel. Security headers are configured in `vercel.json`.
 ---
 
 Built with precision.
+
+
+### Production notes (v3.3)
+
+- AI endpoint uses a real Gemini model cascade with redacted error leakage and stronger prompt-injection guards
+- Chat panel prevents duplicate sends, supports timeout + retry, and improves mobile drag bounds
+- Mortgage & global calculators clamp inputs and guard against NaN / extreme values
+- Property cards attach image error fallbacks and defensive field access
+- CSS adds disabled/loading button states, form validation cues, mobile modal/compare polish, and stronger light-mode contrast
+- Helpers gain throttle, safe number parsing, and image fallback utilities

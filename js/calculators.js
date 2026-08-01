@@ -116,10 +116,11 @@ function updateCalculationPreview() {
       }
     }
   }
-  const estimatedUSD = baseRate * areaSqm * (premium / 5) * cityMultiplier * 0.85;
+  let estimatedUSD = baseRate * areaSqm * (premium / 5) * cityMultiplier * 0.85;
+  if (!Number.isFinite(estimatedUSD) || estimatedUSD < 0) estimatedUSD = 0;
   const converted = convertCurrency(estimatedUSD, currency);
-  const curr = currencies[currency];
-  previewPrice.textContent = curr.symbol + converted.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const curr = currencies[currency] || { symbol: "$" };
+  previewPrice.textContent = curr.symbol + (Number.isFinite(converted) ? converted : 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
   previewCurrency.textContent = `${currency} • Based on 2026 market data`;
 }
 
@@ -148,8 +149,9 @@ function calculateGlobalPrice() {
   let estimatedUSD = baseRate * areaSqm * (premium / 5) * cityMultiplier;
   if (type !== "Land") estimatedUSD *= 1.65;
   estimatedUSD *= 0.92 + Math.random() * 0.16;
+  if (!Number.isFinite(estimatedUSD) || estimatedUSD < 0) estimatedUSD = 0;
   const converted = convertCurrency(estimatedUSD, currency);
-  const curr = currencies[currency];
+  const curr = currencies[currency] || { symbol: "$", rate: 1 };
   closeCurrentModal();
   createModal("Calculation Complete", `
     <div style="padding:40px 50px 55px;max-width:820px;">
@@ -189,24 +191,44 @@ function saveCalculation(usdValue, currency, country, city, type) {
 
 function calculateMortgage(e) {
   e.preventDefault();
-  const price = parseFloat(document.getElementById("mort-price")?.value) || 0;
-  const downPercent = parseFloat(document.getElementById("mort-down")?.value) || 20;
-  const rate = (parseFloat(document.getElementById("mort-rate")?.value) || 4.75) / 100;
-  const years = parseFloat(document.getElementById("mort-years")?.value) || 30;
-  if (price <= 0) { showToast("Please enter a valid property price.", "error"); return; }
+  const price = toNumber(document.getElementById("mort-price")?.value, 0);
+  const downPercent = clamp(toNumber(document.getElementById("mort-down")?.value, 20), 0, 100);
+  const annualRate = clamp(toNumber(document.getElementById("mort-rate")?.value, 4.75), 0, 30);
+  const rate = annualRate / 100;
+  const years = clamp(toNumber(document.getElementById("mort-years")?.value, 30), 1, 50);
+
+  if (price <= 0 || !Number.isFinite(price)) {
+    showToast("Please enter a valid property price greater than zero.", "error");
+    document.getElementById("mort-price")?.focus();
+    return;
+  }
+  if (price > 500_000_000) {
+    showToast("Property price exceeds supported range for this calculator.", "error");
+    return;
+  }
 
   const downPayment = price * (downPercent / 100);
-  const loanAmount = price - downPayment;
+  const loanAmount = Math.max(0, price - downPayment);
   const monthlyRate = rate / 12;
-  const numPayments = years * 12;
+  const numPayments = Math.round(years * 12);
+
   let monthlyPayment = 0;
-  if (monthlyRate > 0) {
-    monthlyPayment = (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) / (Math.pow(1 + monthlyRate, numPayments) - 1);
-  } else {
+  if (loanAmount <= 0) {
+    monthlyPayment = 0;
+  } else if (monthlyRate > 0 && numPayments > 0) {
+    const factor = Math.pow(1 + monthlyRate, numPayments);
+    monthlyPayment = (loanAmount * (monthlyRate * factor)) / (factor - 1);
+  } else if (numPayments > 0) {
     monthlyPayment = loanAmount / numPayments;
   }
+
+  if (!Number.isFinite(monthlyPayment)) {
+    showToast("Unable to compute mortgage with the given inputs.", "error");
+    return;
+  }
+
   const totalPaid = monthlyPayment * numPayments;
-  const totalInterest = totalPaid - loanAmount;
+  const totalInterest = Math.max(0, totalPaid - loanAmount);
 
   const resultsDiv = document.getElementById("mortgage-results");
   if (!resultsDiv) return;
@@ -214,7 +236,7 @@ function calculateMortgage(e) {
   resultsDiv.innerHTML = `
     <div class="mortgage-result">
       <div style="font-weight:700;font-size:20px;margin-bottom:20px;">Mortgage Summary</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
         <div>
           <div style="font-size:13px;color:var(--text-secondary);">Monthly Payment</div>
           <div style="font-size:28px;font-weight:700;color:var(--accent);">$${monthlyPayment.toFixed(0)}</div>
@@ -222,6 +244,10 @@ function calculateMortgage(e) {
         <div>
           <div style="font-size:13px;color:var(--text-secondary);">Total Interest</div>
           <div style="font-size:28px;font-weight:700;">$${totalInterest.toFixed(0)}</div>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--text-secondary);">Loan Amount</div>
+          <div style="font-size:28px;font-weight:700;">$${loanAmount.toFixed(0)}</div>
         </div>
       </div>
       <canvas id="mortgage-pie" width="280" height="200" style="margin:0 auto;display:block;" aria-label="Principal vs interest"></canvas>
@@ -238,21 +264,21 @@ function calculateMortgage(e) {
 
   setTimeout(() => {
     const canvas = document.getElementById("mortgage-pie");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      const principalPercent = (loanAmount / totalPaid) * 100;
-      const interestPercent = (totalInterest / totalPaid) * 100;
-      let start = 0;
-      [principalPercent, interestPercent].forEach((val, i) => {
-        const slice = (val / 100) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.moveTo(140, 100);
-        ctx.arc(140, 100, 80, start, start + slice);
-        ctx.fillStyle = i === 0 ? "#22d3ee" : "#fbbf24";
-        ctx.fill();
-        start += slice;
-      });
-    }
+    if (!canvas || totalPaid <= 0) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const principalPercent = (loanAmount / totalPaid) * 100;
+    const interestPercent = (totalInterest / totalPaid) * 100;
+    let start = 0;
+    [principalPercent, interestPercent].forEach((val, i) => {
+      const slice = (val / 100) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(140, 100);
+      ctx.arc(140, 100, 80, start, start + slice);
+      ctx.fillStyle = i === 0 ? "#22d3ee" : "#fbbf24";
+      ctx.fill();
+      start += slice;
+    });
   }, 50);
 
   setTimeout(() => {
@@ -260,11 +286,12 @@ function calculateMortgage(e) {
     if (!tbody) return;
     let balance = loanAmount;
     let html = "";
-    for (let month = 1; month <= 12; month++) {
+    const monthsToShow = Math.min(12, numPayments);
+    for (let month = 1; month <= monthsToShow; month++) {
       const interest = balance * monthlyRate;
-      const principal = monthlyPayment - interest;
-      balance -= principal;
-      html += `<tr><td>${month}</td><td>$${monthlyPayment.toFixed(0)}</td><td>$${principal.toFixed(0)}</td><td>$${interest.toFixed(0)}</td><td>$${Math.max(0, balance).toFixed(0)}</td></tr>`;
+      const principal = Math.min(balance, monthlyPayment - interest);
+      balance = Math.max(0, balance - principal);
+      html += `<tr><td>${month}</td><td>$${monthlyPayment.toFixed(0)}</td><td>$${Math.max(0, principal).toFixed(0)}</td><td>$${Math.max(0, interest).toFixed(0)}</td><td>$${balance.toFixed(0)}</td></tr>`;
     }
     tbody.innerHTML = html;
   }, 80);

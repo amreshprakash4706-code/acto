@@ -617,8 +617,14 @@
 </button>
 
 <!-- Toast Container -->
-<div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 3000;"></div>
+<div id="toast-container" aria-live="polite" aria-relevant="additions" style="position: fixed; bottom: 24px; right: 24px; z-index: 3000;"></div>
 
+<noscript>
+  <div style="padding:40px;text-align:center;font-family:system-ui;background:#0a0b12;color:#f1f5f9;min-height:100vh;">
+    <h1>Atconiz</h1>
+    <p>JavaScript is required to run the Atconiz platform. Please enable JavaScript and reload.</p>
+  </div>
+</noscript>
 <script src="helpers.js"></script>
 <script src="properties.js"></script>
 <script src="js/core.js"></script>

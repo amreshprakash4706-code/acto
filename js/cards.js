@@ -32,12 +32,12 @@ function createPropertyCard(prop, options = {}) {
 
   const isFavorited = favorites.includes(prop.id);
   const showCompare = options.showCompare !== false;
-  const imgSrc = _esc(prop.images[0] || "");
-  const title = _esc(prop.title);
-  const city = _esc(prop.location.city);
-  const country = _esc(prop.location.country);
-  const type = _esc(prop.type);
-  const status = _esc(prop.status);
+  const imgSrc = _esc((prop.images && prop.images[0]) || "");
+  const title = _esc(prop.title || "Property");
+  const city = _esc((prop.location && prop.location.city) || "");
+  const country = _esc((prop.location && prop.location.country) || "");
+  const type = _esc(prop.type || "");
+  const status = _esc(prop.status || "For Sale");
 
   card.innerHTML = `
     <div class="image-container">
@@ -67,13 +67,18 @@ function createPropertyCard(prop, options = {}) {
       <div class="card-meta">
         <div>${prop.bedrooms} beds</div>
         <div>${prop.bathrooms} baths</div>
-        <div>${prop.area.toLocaleString()} sqft</div>
+        <div>${Number.isFinite(prop.area) ? prop.area.toLocaleString() : "—"} sqft</div>
       </div>
       <div class="card-footer">
         <div class="card-type-pill">${type}</div>
         <div style="color:var(--text-secondary);">${new Date(prop.listedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</div>
       </div>
     </div>`;
+
+  const mainImg = card.querySelector(".image-container img");
+  if (mainImg && typeof attachImageFallback === "function") {
+    attachImageFallback(mainImg, title);
+  }
 
   const heart = card.querySelector(".heart-btn");
   if (heart) {

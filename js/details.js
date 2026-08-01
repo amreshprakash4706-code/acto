@@ -128,6 +128,10 @@ function showPropertyDetails(id) {
       if (main && btn.dataset.src) main.src = btn.dataset.src;
     });
   });
+  const mainImg = document.getElementById("detail-main-image");
+  if (mainImg && typeof attachImageFallback === "function") {
+    attachImageFallback(mainImg, prop.title);
+  }
 }
 
 function switchDetailTab(btn, tab) {
