@@ -1,86 +1,112 @@
 # Atconiz — AI Real Estate Intelligence Platform
 
-Premium, production-ready luxury real-estate intelligence platform powered by Gemini.
+Luxury real-estate intelligence platform with a sample property catalog, transparent reference calculators, AI chat (Gemini), and multi-role dashboards.
 
-**Version 3.3** — Production hardening: stronger AI security & fallbacks, resilient chat UX with retry, calculator validation, image fallbacks, polished motion/accessibility, and refined light/mobile experience.
+**Version 3.4** — Production hardening focused on truthful data semantics, API security, deterministic financial estimates, and honest empty/local states.
 
 ## Structure
 
 ```
 atconiz/
-├── index.html              # Semantic SPA markup + SEO
+├── index.html              # Semantic SPA markup
 ├── styles.css              # Design system (tokens, components, a11y)
-├── properties.js           # Seeded data + global state
-├── helpers.js              # escapeHtml, formatPrice, debounce, toast
+├── properties.js           # Seeded sample catalog + client state
+├── helpers.js              # escapeHtml, formatPrice, debounce, toast, etc.
 ├── js/
 │   ├── core.js             # Nav, theme, views, modals
 │   ├── cards.js            # Cards, filters, favorites, compare
 │   ├── details.js          # Property details, reviews, viewings
-│   ├── chat.js             # AI chat, valuation, investment
+│   ├── chat.js             # AI chat panel, valuation estimate, investment
 │   ├── calculators.js      # Global price + mortgage calculators
 │   └── dashboards.js       # Dashboards, content, boot
 ├── api/
-│   ├── chat.js             # Gemini AI (rate-limited, injection guards)
-│   └── hello.js            # Health check
+│   ├── chat.js             # Gemini AI (rate-limited, no secret leakage)
+│   └── hello.js            # Health check (status only)
+├── scripts/
+│   └── validate.js         # Static validation surface
 ├── vercel.json             # Security headers + CSP + caching
 ├── package.json
 └── README.md
 ```
 
-## Key Features
+## Data semantics (important)
 
-- 100 curated luxury properties with 3D tilt cards (reduced-motion aware)
-- Favorites, compare (up to 3), advanced filters
-- AI Property Valuation + Investment projections
-- Global Land & Property Price Calculator (20+ currencies)
-- Full mortgage calculator with amortization
-- Multi-role dashboards (User / Agent / Admin / Analytics)
-- Atconiz AI chat (Gemini 3.6 Flash with model fallback + rate limiting)
-- Dark / Light theme with system preference awareness
-- Fully keyboard accessible modals with focus trap
-- XSS-safe rendering for all dynamic content
+- The default **100 properties** are **seed/sample data** generated deterministically for demonstration.
+- They are **not** verified live listings.
+- Dashboard metrics and charts are derived from the **local catalog** only (or show “local / not connected”).
+- Valuation and global price outputs are **reference estimates** with transparent factors — **not** formal appraisals and **not** claimed “real market matched” percentages.
+- Favorites, reviews, viewing requests, contact drafts, and saved estimates persist in **browser localStorage** only unless you connect a real backend.
+- Contact form is **local-only** (drafts stored in the browser; nothing is sent).
+
+## Key features
+
+- Sample luxury catalog with filters, search (title, location, type, description, amenities), sort, favorites, compare (up to 3)
+- AI chat via `/api/chat` (Gemini cascade, rate limiting, injection guards)
+- Deterministic property value estimate and global land/price calculator
+- Mortgage calculator with zero-interest handling and amortization preview
+- Multi-role dashboard panels using real catalog-derived stats
+- Dark / light theme, keyboard-accessible modals with focus trap
+- XSS-safe rendering (`escapeHtml` / `textContent`) for dynamic content
 
 ## Running locally
 
 ```bash
 npm install
 npx vercel dev
-# or pure static
+# or static only (AI endpoint unavailable without serverless)
 npx serve .
 ```
 
-Set `GEMINI_API_KEY` in `.env` (see `.env.example`) or in the Vercel dashboard.
+Set `GEMINI_API_KEY` in `.env` (see `.env.example`) or in the Vercel project environment variables (Production + Preview).
+
+```bash
+npm run check   # static validation (syntax, integrity, API safety)
+```
 
 ## Security
 
-- HTML escaping on all dynamic content
-- Prompt-injection guards on the AI endpoint
-- In-memory rate limiting (20 req/min/IP)
+- HTML escaping on dynamic content
+- AI system prompt and API key stay server-side
+- GET health endpoints return status only (no key presence, no model list)
+- No wildcard CORS on the chat API
+- Request size limits, rate limiting (in-memory per instance — see limitations below)
 - CSP, HSTS, X-Frame-Options, Permissions-Policy via `vercel.json`
-- Input length limits and sanitization
+- Prompt-injection pattern checks plus system/user separation in the prompt
+
+### Rate limiting note
+
+The in-memory rate limiter is appropriate for single-instance or light traffic. On multi-instance serverless it is best-effort per instance. For durable distributed limiting, front the API with a shared store (e.g. Redis / Upstash) or edge rate limits.
 
 ## Accessibility
 
-- Skip link, focus-visible, modal focus trap + return focus
-- Proper `<button>` elements and ARIA roles
-- Live regions for toasts and chat
+- Skip-friendly structure, focus-visible styles, modal focus trap + restore
+- Semantic buttons, ARIA where needed, live regions for toasts and chat
 - `prefers-reduced-motion` respected (particles, tilt, counters)
-- Keyboard navigation throughout
+- Keyboard navigation for cards, compare, dialogs
 
 ## Deployment
 
 Optimized for Vercel. Security headers are configured in `vercel.json`.
 
+Required environment variable:
+
+| Variable         | Required | Description                |
+|------------------|----------|----------------------------|
+| `GEMINI_API_KEY` | For AI  | Google AI Studio API key   |
+
+Do not commit a real `.env` file.
+
+## Version notes (3.4)
+
+- Removed invented production metrics (user counts, accuracy %, “match” badges)
+- Calculators and AI valuation are deterministic with explicit assumptions
+- Sample data and local-only persistence clearly labeled
+- API chat no longer exposes models or key presence on GET; CORS tightened
+- Dashboards/charts use catalog-derived data or truthful empty/local states
+- Contact form no longer claims messages were delivered
+- Account menu reflects guest/local session (no fake auth UX)
+- Added `scripts/validate.js` integrity checks
+
 ---
 
 Built with precision.
-
-
-### Production notes (v3.3)
-
-- AI endpoint uses a real Gemini model cascade with redacted error leakage and stronger prompt-injection guards
-- Chat panel prevents duplicate sends, supports timeout + retry, and improves mobile drag bounds
-- Mortgage & global calculators clamp inputs and guard against NaN / extreme values
-- Property cards attach image error fallbacks and defensive field access
-- CSS adds disabled/loading button states, form validation cues, mobile modal/compare polish, and stronger light-mode contrast
-- Helpers gain throttle, safe number parsing, and image fallback utilities

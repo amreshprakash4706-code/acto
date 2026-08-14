@@ -1,8 +1,12 @@
+/**
+ * Lightweight health check. No secrets, no model config, no env leakage.
+ */
 module.exports = (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Cache-Control", "no-store");
   res.status(200).json({
-    message: "Hello from Atconiz API!",
-    working: true,
-    time: new Date().toISOString()
+    status: "ok",
+    service: "atconiz",
+    time: new Date().toISOString(),
   });
 };

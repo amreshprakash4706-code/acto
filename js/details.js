@@ -58,7 +58,7 @@ function showPropertyDetails(id) {
           <div><span style="font-size:13px;color:var(--text-secondary);">BATHROOMS</span><br><span style="font-size:23px;font-weight:700;">${prop.bathrooms}</span></div>
           <div><span style="font-size:13px;color:var(--text-secondary);">LIVING AREA</span><br><span style="font-size:23px;font-weight:700;">${prop.area.toLocaleString()} sqft</span></div>
           <div><span style="font-size:13px;color:var(--text-secondary);">YEAR BUILT</span><br><span style="font-size:23px;font-weight:700;">${prop.yearBuilt}</span></div>
-          <div><span style="font-size:13px;color:var(--text-secondary);">RATING</span><br><span style="font-size:23px;font-weight:700;">★ ${prop.rating}</span> <span style="font-size:14px;color:var(--text-secondary);">(${prop.reviewsCount})</span></div>
+          <div><span style="font-size:13px;color:var(--text-secondary);">SAMPLE SCORE</span><br><span style="font-size:23px;font-weight:700;">★ ${prop.rating}</span></div>
         </div>
         <div role="tablist" style="display:flex;gap:8px;border-bottom:1px solid var(--glass-border);margin-bottom:24px;">
           <button type="button" role="tab" aria-selected="true" onclick="switchDetailTab(this,'overview')" class="tab-button active">Overview</button>

@@ -1,14 +1,15 @@
 {
   "name": "atconiz",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "private": true,
-  "description": "Atconiz \u2014 Premium AI Real Estate Intelligence Platform (Production)",
+  "description": "Atconiz — Luxury real-estate intelligence platform (production-hardened)",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
     "deploy": "vercel --prod",
-    "serve": "npx serve ."
+    "serve": "npx serve .",
+    "check": "node scripts/validate.js"
   },
   "keywords": [
     "real-estate",
@@ -16,8 +17,7 @@
     "gemini",
     "luxury",
     "atconiz",
-    "vercel",
-    "saas"
+    "vercel"
   ],
   "author": "Amresh",
   "license": "ISC",

@@ -1,6 +1,8 @@
 // =============================================
 // ATCONIZ – Data Layer & Global State
-// Seeded PRNG for reproducible 100-property catalog
+// Seeded PRNG for a reproducible 100-property SAMPLE catalog.
+// These listings are demonstration/seed data only — not verified live inventory.
+// Replace generateProperties() / properties array with a real API when integrating a backend.
 // =============================================
 
 function mulberry32(a) {
@@ -60,7 +62,8 @@ if (typeof window !== "undefined") {
 }
 let chatHistory = [];
 
-// ── Global land & currency data (2026 reference rates) ──
+// ── Global land & currency data (static REFERENCE rates for estimates only) ──
+// Not live FX or live land comps. Used by the global calculator for transparent illustrations.
 const globalData = {
   countries: [
     "United States", "United Arab Emirates", "India", "United Kingdom", "Singapore",

@@ -31,8 +31,10 @@ function renderRecommendedProperties() {
 function renderAgentDashboard() {
   const container = document.getElementById("agent-listings-table");
   if (!container) return;
+  // Demo agent view: first 8 sample listings (local catalog only)
   const myListings = properties.slice(0, 8);
-  let html = `<div style="display:grid;gap:1px;background:var(--glass-border);border-radius:12px;overflow:hidden;">`;
+  let html = `<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary);">Sample catalog view — local seed data only. No live agent backend.</div>`;
+  html += `<div style="display:grid;gap:1px;background:var(--glass-border);border-radius:12px;overflow:hidden;">`;
   html += `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:14px 20px;background:var(--bg-secondary);font-size:13px;font-weight:600;color:var(--text-secondary);"><div>PROPERTY</div><div>PRICE</div><div>STATUS</div><div>ACTIONS</div></div>`;
   myListings.forEach((prop) => {
     html += `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:16px 20px;background:var(--bg-secondary);align-items:center;font-size:14.5px;border-top:1px solid var(--glass-border);">
@@ -48,30 +50,44 @@ function renderAgentDashboard() {
     const canvas = document.getElementById("agent-performance-chart");
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    // Derive simple distribution from sample listing prices (local data only)
+    const prices = myListings.map((p) => p.price);
+    const maxP = Math.max(...prices, 1);
     ctx.fillStyle = "#1e2937";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const data = [42, 58, 71, 65, 89, 112, 95];
     ctx.fillStyle = "#22d3ee";
-    data.forEach((val, i) => {
+    prices.forEach((val, i) => {
       const x = 38 + i * 52;
-      const h = val * 1.8;
+      const h = (val / maxP) * 160;
       ctx.fillRect(x, canvas.height - 40 - h, 38, h);
     });
+    ctx.fillStyle = "#64748b";
+    ctx.font = "11px system-ui";
+    ctx.fillText("Sample listing prices (local)", 38, canvas.height - 12);
   }, 200);
 }
 
 function renderAdminDashboard() {
+  const forSale = properties.filter((p) => p.status === "For Sale").length;
+  const underContract = properties.length - forSale;
+  const cities = new Set(properties.map((p) => p.location?.city).filter(Boolean)).size;
+  const avgPrice =
+    properties.length > 0
+      ? Math.round(properties.reduce((s, p) => s + p.price, 0) / properties.length)
+      : 0;
+
   const statsContainer = document.getElementById("admin-stats");
   if (statsContainer) {
     statsContainer.innerHTML = `
-      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">TOTAL LISTINGS</div><div style="font-size:34px;font-weight:700;">${properties.length}</div></div>
-      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">ACTIVE USERS</div><div style="font-size:34px;font-weight:700;">41,892</div></div>
-      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">PENDING APPROVALS</div><div style="font-size:34px;font-weight:700;">14</div></div>
-      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">AVG. DAYS ON MARKET</div><div style="font-size:34px;font-weight:700;">37</div></div>`;
+      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">SAMPLE LISTINGS</div><div style="font-size:34px;font-weight:700;">${properties.length}</div></div>
+      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">FOR SALE</div><div style="font-size:34px;font-weight:700;">${forSale}</div></div>
+      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">UNDER CONTRACT</div><div style="font-size:34px;font-weight:700;">${underContract}</div></div>
+      <div class="glass" style="padding:24px;border-radius:18px;"><div style="font-size:13px;">CITIES (SAMPLE)</div><div style="font-size:34px;font-weight:700;">${cities}</div></div>`;
   }
   const tableContainer = document.getElementById("admin-properties-table");
   if (!tableContainer) return;
-  let html = `<table style="width:100%;border-collapse:collapse;font-size:14px;"><thead><tr style="color:var(--text-secondary);"><th scope="col" style="text-align:left;padding:12px 16px;">Property</th><th scope="col" style="padding:12px 16px;">Price</th><th scope="col" style="padding:12px 16px;">Location</th><th scope="col" style="padding:12px 16px;">Status</th><th scope="col"></th></tr></thead><tbody>`;
+  let html = `<div style="margin-bottom:10px;font-size:13px;color:var(--text-secondary);">Local seed catalog only. Avg. sample price: ${formatPrice(avgPrice)}. No live admin backend connected.</div>`;
+  html += `<table style="width:100%;border-collapse:collapse;font-size:14px;"><thead><tr style="color:var(--text-secondary);"><th scope="col" style="text-align:left;padding:12px 16px;">Property</th><th scope="col" style="padding:12px 16px;">Price</th><th scope="col" style="padding:12px 16px;">Location</th><th scope="col" style="padding:12px 16px;">Status</th><th scope="col"></th></tr></thead><tbody>`;
   properties.slice(0, 12).forEach((prop) => {
     const isSale = prop.status === "For Sale";
     html += `<tr style="border-top:1px solid var(--glass-border);">
@@ -79,7 +95,7 @@ function renderAdminDashboard() {
       <td style="padding:14px 16px;font-weight:700;">${formatPrice(prop.price)}</td>
       <td style="padding:14px 16px;">${escapeHtml(prop.location.city)}</td>
       <td style="padding:14px 16px;"><span style="font-size:12px;padding:2px 10px;border-radius:9999px;background:${isSale ? "rgba(16,185,129,0.15)" : "rgba(234,179,8,0.15)"};color:${isSale ? "#10b981" : "#eab308"};">${escapeHtml(prop.status)}</span></td>
-      <td style="padding:14px 16px;text-align:right;"><button type="button" onclick="showPropertyDetails(${prop.id})" class="btn btn-secondary" style="padding:5px 13px;font-size:12px;">Manage</button></td>
+      <td style="padding:14px 16px;text-align:right;"><button type="button" onclick="showPropertyDetails(${prop.id})" class="btn btn-secondary" style="padding:5px 13px;font-size:12px;">View</button></td>
     </tr>`;
   });
   html += `</tbody></table>`;
@@ -87,57 +103,100 @@ function renderAdminDashboard() {
 }
 
 function renderAnalyticsCharts() {
+  // All charts derived from the local seed catalog — no fabricated trends
   const priceCanvas = document.getElementById("analytics-price-chart");
-  if (priceCanvas) {
+  if (priceCanvas && properties.length) {
     const ctx = priceCanvas.getContext("2d");
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, priceCanvas.width, priceCanvas.height);
-    const buckets = [5, 12, 28, 31, 17, 7];
-    const max = Math.max(...buckets);
+    const labels = ["<$5M", "$5-10M", "$10-20M", "$20-35M", "$35-50M", "$50M+"];
+    const buckets = [0, 0, 0, 0, 0, 0];
+    properties.forEach((p) => {
+      const pr = p.price;
+      if (pr < 5e6) buckets[0]++;
+      else if (pr < 10e6) buckets[1]++;
+      else if (pr < 20e6) buckets[2]++;
+      else if (pr < 35e6) buckets[3]++;
+      else if (pr < 50e6) buckets[4]++;
+      else buckets[5]++;
+    });
+    const max = Math.max(...buckets, 1);
     buckets.forEach((count, i) => {
       const x = 55 + i * 78;
       const h = (count / max) * 190;
       ctx.fillStyle = i % 2 === 0 ? "#22d3ee" : "#67e8f9";
       ctx.fillRect(x, priceCanvas.height - 45 - h, 58, h);
       ctx.fillStyle = "#64748b";
-      ctx.font = "12px system-ui";
-      ctx.fillText(["$1-5M", "$5-10M", "$10-20M", "$20-35M", "$35-50M", "$50M+"][i], x - 5, priceCanvas.height - 22);
+      ctx.font = "11px system-ui";
+      ctx.fillText(labels[i], x - 2, priceCanvas.height - 22);
     });
   }
   const typeCanvas = document.getElementById("analytics-type-chart");
-  if (typeCanvas) {
+  if (typeCanvas && properties.length) {
     const ctx = typeCanvas.getContext("2d");
     ctx.clearRect(0, 0, typeCanvas.width, typeCanvas.height);
-    const types = { "Luxury Villa": 32, Penthouse: 24, Estate: 19, Mansion: 15, Loft: 10 };
-    const colors = ["#22d3ee", "#fbbf24", "#10b981", "#a78bfa", "#f472b6"];
+    const typeCounts = {};
+    properties.forEach((p) => {
+      const t = p.type || "Other";
+      typeCounts[t] = (typeCounts[t] || 0) + 1;
+    });
+    const entries = Object.entries(typeCounts);
+    const total = properties.length;
+    const colors = ["#22d3ee", "#fbbf24", "#10b981", "#a78bfa", "#f472b6", "#94a3b8"];
     let start = 0;
-    const cx = 145, cy = 135, r = 95;
-    Object.values(types).forEach((val, i) => {
-      const angle = (val / 100) * Math.PI * 2;
+    const cx = 145,
+      cy = 135,
+      r = 95;
+    entries.forEach(([_, count], i) => {
+      const angle = (count / total) * Math.PI * 2;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, r, start, start + angle);
-      ctx.fillStyle = colors[i];
+      ctx.fillStyle = colors[i % colors.length];
       ctx.fill();
       start += angle;
     });
   }
   const trendCanvas = document.getElementById("analytics-trend-chart");
-  if (trendCanvas) {
+  if (trendCanvas && properties.length) {
     const ctx = trendCanvas.getContext("2d");
     ctx.clearRect(0, 0, trendCanvas.width, trendCanvas.height);
+    // Sort sample by listedDate and plot cumulative count (catalog growth illustration)
+    const sorted = properties
+      .slice()
+      .sort((a, b) => new Date(a.listedDate) - new Date(b.listedDate));
+    const points = [];
+    const step = Math.max(1, Math.floor(sorted.length / 12));
+    for (let i = step - 1; i < sorted.length; i += step) {
+      points.push(i + 1);
+    }
+    if (points[points.length - 1] !== sorted.length) points.push(sorted.length);
+    if (points.length < 2) {
+      ctx.fillStyle = "#64748b";
+      ctx.font = "13px system-ui";
+      ctx.fillText("Insufficient sample data", 50, trendCanvas.height / 2);
+      return;
+    }
+    const minP = points[0];
+    const maxP = points[points.length - 1];
     ctx.strokeStyle = "#22d3ee";
     ctx.lineWidth = 3.5;
     ctx.shadowBlur = 6;
     ctx.shadowColor = "rgba(34,211,238,0.35)";
     ctx.beginPath();
-    const points = [68, 71, 79, 84, 81, 93, 99, 107, 112, 119, 124, 131];
     points.forEach((val, i) => {
-      const x = 50 + (i / 11) * (trendCanvas.width - 90);
-      const y = trendCanvas.height - 50 - ((val - 60) / 75) * (trendCanvas.height - 80);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      const x = 50 + (i / (points.length - 1)) * (trendCanvas.width - 90);
+      const y =
+        trendCanvas.height -
+        50 -
+        ((val - minP) / Math.max(1, maxP - minP)) * (trendCanvas.height - 80);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     });
     ctx.stroke();
+    ctx.fillStyle = "#64748b";
+    ctx.font = "11px system-ui";
+    ctx.fillText("Sample catalog by list date (local)", 50, trendCanvas.height - 18);
   }
 }
 
@@ -153,10 +212,30 @@ function renderFeaturedProperties() {
 function renderTestimonials() {
   const container = document.getElementById("testimonials-grid");
   if (!container) return;
+  // Sample illustrative quotes only — not verified customer reviews
+  const note = document.createElement("p");
+  note.style.cssText = "font-size:13px;color:var(--text-secondary);margin-bottom:16px;";
+  note.textContent = "Sample illustrative quotes for layout. Not verified customer reviews.";
+  container.appendChild(note);
   [
-    { name: "Victoria Lang", role: "Founder & CEO, Lumen Capital", quote: "Atconiz completely transformed how we source and evaluate trophy assets. The AI insights are uncannily accurate.", rating: 5 },
-    { name: "Raj Patel", role: "Principal, Horizon Family Office", quote: "The valuation models and investment projections have become indispensable to our decision-making process.", rating: 5 },
-    { name: "Isabella Moreau", role: "Private Collector", quote: "Found our dream home in Lake Como through Atconiz in under 3 weeks. The entire experience felt effortless and deeply personalized.", rating: 5 },
+    {
+      name: "Sample Client A",
+      role: "Illustrative role",
+      quote: "A polished interface for exploring luxury listings and running transparent reference estimates.",
+      rating: 5,
+    },
+    {
+      name: "Sample Client B",
+      role: "Illustrative role",
+      quote: "Filters, compare, and calculators are useful for early research before speaking with advisors.",
+      rating: 5,
+    },
+    {
+      name: "Sample Client C",
+      role: "Illustrative role",
+      quote: "Clear labeling of sample data and estimates helps set the right expectations.",
+      rating: 5,
+    },
   ].forEach((t) => {
     const card = document.createElement("div");
     card.className = "glass";
@@ -174,7 +253,7 @@ function renderBlog() {
   const container = document.getElementById("blog-grid");
   if (!container) return;
   [
-    { title: "The Rise of AI in Ultra-Luxury Real Estate", excerpt: "How proprietary machine learning models are reshaping acquisition strategies for the world's most exclusive properties.", category: "Intelligence", readTime: "12 min" },
+    { title: "The Rise of AI in Ultra-Luxury Real Estate", excerpt: "How transparent estimation models and careful data labeling are reshaping early-stage research for exclusive properties.", category: "Intelligence", readTime: "12 min" },
     { title: "Monaco & Dubai: A New Axis of Wealth", excerpt: "Analyzing the shifting preferences of global UHNWIs and what it means for portfolio allocation in 2026.", category: "Markets", readTime: "9 min" },
     { title: "Sustainable Estates: The New Status Symbol", excerpt: "Why net-zero and regenerative design are becoming critical factors in both value retention and buyer demand.", category: "Design", readTime: "14 min" },
   ].forEach((post) => {
@@ -211,11 +290,26 @@ function renderFAQ() {
   const container = document.getElementById("faq-container");
   if (!container) return;
   [
-    { q: "How accurate are Atconiz AI valuations?", a: "Our proprietary models have demonstrated 94.2% accuracy against actual closed transaction prices over the past 36 months across all major luxury markets." },
-    { q: "Can I access off-market opportunities?", a: "Yes. Private Client and Family Office members receive curated access to discreet opportunities not listed on any public platform." },
-    { q: "What makes Atconiz different from other portals?", a: "We combine institutional-grade data science, exclusive inventory, and white-glove advisory — not just listings." },
-    { q: "How does the AI investment analysis work?", a: "We run Monte Carlo simulations incorporating 40+ macroeconomic, micro-market, and asset-specific variables to project returns and risk metrics." },
-    { q: "Does the Global Price Calculator match real offline prices?", a: "Yes. Our land and property calculations are calibrated against 142,847 real 2025-2026 transactions and consistently achieve 94-97% alignment with actual sale prices." },
+    {
+      q: "How should I treat Atconiz valuation estimates?",
+      a: "All valuation outputs are reference estimates from transparent formulas and static rates. They are not formal appraisals, do not constitute professional advice, and should not be used as the sole basis for a transaction. Consult licensed valuers for official work.",
+    },
+    {
+      q: "Is the property catalog live inventory?",
+      a: "The default catalog is seeded sample data for demonstration and development. It is clearly local/sample unless you connect a real listings backend. Never treat sample listings as verified live inventory.",
+    },
+    {
+      q: "What makes Atconiz different?",
+      a: "Atconiz focuses on a polished luxury-property experience with AI-assisted exploration, transparent calculators, and careful security practices — not invented accuracy percentages or fake market claims.",
+    },
+    {
+      q: "How does investment projection work?",
+      a: "Projections use a simple compound-growth formula with a user-supplied appreciation rate and horizon. Results are illustrative only; past performance does not guarantee future results.",
+    },
+    {
+      q: "How does the Global Price Calculator work?",
+      a: "It multiplies static country reference land rates (USD/sqm) by area, a location-premium slider, optional city multipliers, and a built-property factor when applicable. Currency conversion uses fixed reference rates. Outputs are estimates, not live market matches.",
+    },
   ].forEach((faq) => {
     const item = document.createElement("div");
     item.className = "glass";
@@ -226,7 +320,9 @@ function renderFAQ() {
         <span style="font-size:22px;color:var(--text-secondary);transition:transform .3s;" aria-hidden="true">+</span>
       </button>
       <div class="accordion-content" role="region"><div style="padding-top:6px;color:var(--text-secondary);line-height:1.7;">${escapeHtml(faq.a)}</div></div>`;
-    item.querySelector(".accordion-header").addEventListener("click", function () { toggleAccordion(this); });
+    item.querySelector(".accordion-header").addEventListener("click", function () {
+      toggleAccordion(this);
+    });
     container.appendChild(item);
   });
 }
@@ -289,52 +385,69 @@ function submitNewProperty() {
   properties.unshift(newProp);
   filteredProperties = properties.slice();
   closeCurrentModal();
-  showToast("Property successfully listed. AI analysis initiated.");
+  showToast("Sample listing added to the local catalog (browser session only).");
   if (document.getElementById("view-explore")?.classList.contains("active")) renderPropertyGrid();
   if (document.getElementById("dashboard-admin")?.style.display === "block") renderAdminDashboard();
 }
 
 function showUserMenu() {
-  createModal("Account", `
+  createModal(
+    "Local Session",
+    `
     <div style="padding:20px 30px 40px;">
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:30px;">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face" alt="" width="72" height="72" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
-        <div>
-          <div style="font-weight:700;font-size:21px;">Alexander Chen</div>
-          <div style="color:var(--text-secondary);">Private Client • Member since 2023</div>
-        </div>
+      <div style="margin-bottom:24px;">
+        <div style="font-weight:700;font-size:21px;">Guest / Local</div>
+        <div style="color:var(--text-secondary);margin-top:6px;">No server authentication is connected. Favorites, reviews, and saved estimates stay in this browser only.</div>
       </div>
       <div style="display:grid;gap:6px;font-size:15.5px;">
         <button type="button" onclick="switchView('dashboards');closeCurrentModal();" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:inherit;font:inherit;text-align:left;">User Dashboard</button>
-        <button type="button" onclick="closeCurrentModal()" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:inherit;font:inherit;text-align:left;">Profile &amp; Preferences</button>
-        <button type="button" onclick="closeCurrentModal()" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:inherit;font:inherit;text-align:left;">Saved Searches</button>
-        <button type="button" onclick="closeCurrentModal()" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:inherit;font:inherit;text-align:left;">Billing &amp; Invoices</button>
+        <button type="button" onclick="showFavoritesModal();" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:inherit;font:inherit;text-align:left;">Saved Properties (${favorites.length})</button>
         <div style="height:1px;background:var(--glass-border);margin:12px 0;" aria-hidden="true"></div>
-        <button type="button" onclick="closeCurrentModal()" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:#ef4444;font:inherit;text-align:left;">Sign Out</button>
+        <button type="button" onclick="closeCurrentModal()" style="padding:14px 18px;border-radius:12px;cursor:pointer;background:none;border:none;color:var(--text-secondary);font:inherit;text-align:left;">Close</button>
       </div>
-    </div>`);
+    </div>`
+  );
 }
 
 function showContactModal() {
-  createModal("Contact Family Office Team", `
+  createModal(
+    "Contact",
+    `
     <div style="padding:30px 40px 50px;">
-      <p style="color:var(--text-secondary);margin-bottom:24px;line-height:1.6;">Our Family Office advisors provide white-glove service for multi-property portfolios and complex acquisitions.</p>
+      <p style="color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">Share a message for the team. This form is local-only in the current build — nothing is transmitted to a server.</p>
+      <div style="margin-bottom:12px;padding:10px 14px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:10px;font-size:13px;color:var(--text-secondary);">
+        Local draft only. Connect a real contact endpoint to enable delivery.
+      </div>
       <div style="margin-bottom:20px;"><label for="contact-name">Full Name</label><input type="text" id="contact-name" autocomplete="name" maxlength="100"></div>
       <div style="margin-bottom:20px;"><label for="contact-email">Email</label><input type="email" id="contact-email" autocomplete="email" maxlength="120"></div>
-      <div style="margin-bottom:28px;"><label for="contact-message">How can we help?</label><textarea id="contact-message" rows="4" maxlength="1000" placeholder="Tell us about your portfolio goals..."></textarea></div>
+      <div style="margin-bottom:28px;"><label for="contact-message">How can we help?</label><textarea id="contact-message" rows="4" maxlength="1000" placeholder="Your message..."></textarea></div>
       <div style="display:flex;gap:14px;">
-        <button type="button" onclick="submitContactForm()" class="btn btn-primary" style="flex:1;padding:16px;">Send Inquiry</button>
+        <button type="button" onclick="submitContactForm()" class="btn btn-primary" style="flex:1;padding:16px;">Save Local Draft</button>
         <button type="button" onclick="closeCurrentModal()" class="btn btn-secondary" style="flex:1;padding:16px;">Cancel</button>
       </div>
-    </div>`);
+    </div>`
+  );
 }
 
 function submitContactForm() {
   const name = document.getElementById("contact-name")?.value?.trim();
   const email = document.getElementById("contact-email")?.value?.trim();
-  if (!name || !email) { showToast("Please provide your name and email.", "error"); return; }
+  const message = document.getElementById("contact-message")?.value?.trim() || "";
+  if (!name || !email) {
+    showToast("Please provide your name and email.", "error");
+    return;
+  }
+  const drafts = safeGetJSON("atconiz_contact_drafts", []);
+  drafts.unshift({
+    id: Date.now(),
+    name: name.slice(0, 100),
+    email: email.slice(0, 120),
+    message: message.slice(0, 1000),
+    date: new Date().toISOString(),
+  });
+  safeSetJSON("atconiz_contact_drafts", drafts.slice(0, 10));
   closeCurrentModal();
-  showToast("Thank you. A Family Office advisor will contact you shortly.");
+  showToast("Draft saved locally. No message was sent (no contact backend connected).");
 }
 
 function initHeroParticles() {
@@ -412,23 +525,34 @@ function initializePlatform() {
     });
   }
 
+  // Hero / stats strip: use real catalog-derived numbers only
   setTimeout(() => {
+    const cityCount = new Set(properties.map((p) => p.location?.city).filter(Boolean)).size;
+    const typeCount = new Set(properties.map((p) => p.type).filter(Boolean)).size;
     [
-      { id: "stat-properties", target: 142847 },
-      { id: "stat-cities", target: 184 },
-      { id: "stat-matches", target: 18492 },
+      { id: "stat-properties", target: properties.length },
+      { id: "stat-cities", target: cityCount },
+      { id: "stat-matches", target: typeCount },
     ].forEach((item) => {
       const el = document.getElementById(item.id);
-      if (!el || prefersReducedMotion()) { if (el) el.textContent = item.target.toLocaleString(); return; }
+      if (!el) return;
+      if (prefersReducedMotion()) {
+        el.textContent = item.target.toLocaleString();
+        return;
+      }
       let current = 0;
-      const increment = item.target / 42;
+      const increment = Math.max(1, item.target / 24);
       const timer = setInterval(() => {
         current += increment;
-        if (current >= item.target) { el.textContent = item.target.toLocaleString(); clearInterval(timer); }
-        else el.textContent = Math.floor(current).toLocaleString();
+        if (current >= item.target) {
+          el.textContent = item.target.toLocaleString();
+          clearInterval(timer);
+        } else {
+          el.textContent = Math.floor(current).toLocaleString();
+        }
       }, 40);
     });
-  }, 800);
+  }, 400);
 
   initHeroParticles();
   initNavIndicator();
@@ -440,13 +564,14 @@ function initializePlatform() {
     }
   });
 
-  if (favorites.length === 0) {
-    favorites = [1, 4, 7, 12, 19];
-    localStorage.setItem("atconiz_favorites", JSON.stringify(favorites));
-    updateFavoritesCount();
-  }
+  // Do not invent pre-seeded favorites; start empty unless user already saved
 
-  console.log("%c[Atconiz] Production platform initialized • 100 properties loaded", "color:#64748b");
+  if (typeof console !== "undefined" && console.log) {
+    console.log(
+      "%c[Atconiz] Platform initialized • " + properties.length + " sample properties loaded",
+      "color:#64748b"
+    );
+  }
 }
 
 document.addEventListener("DOMContentLoaded", initializePlatform);

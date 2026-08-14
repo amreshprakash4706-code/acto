@@ -60,7 +60,7 @@ function createPropertyCard(prop, options = {}) {
         </div>
         <div>
           <div class="card-rating">★ ${prop.rating}</div>
-          <div class="card-reviews">${prop.reviewsCount} reviews</div>
+          <div class="card-reviews">Sample score</div>
         </div>
       </div>
       <div class="card-title">${title}</div>
@@ -147,12 +147,18 @@ function applyFilters() {
   const sortMode = document.getElementById("sort-select")?.value || "newest";
   let result = properties.filter((prop) => {
     if (!searchTerm) return true;
+    const amenityHit = Array.isArray(prop.amenities)
+      ? prop.amenities.some((a) => String(a).toLowerCase().includes(searchTerm))
+      : false;
     return (
-      prop.title.toLowerCase().includes(searchTerm) ||
-      prop.location.city.toLowerCase().includes(searchTerm) ||
-      prop.location.country.toLowerCase().includes(searchTerm) ||
-      prop.description.toLowerCase().includes(searchTerm) ||
-      prop.type.toLowerCase().includes(searchTerm)
+      (prop.title || "").toLowerCase().includes(searchTerm) ||
+      (prop.location?.city || "").toLowerCase().includes(searchTerm) ||
+      (prop.location?.country || "").toLowerCase().includes(searchTerm) ||
+      (prop.location?.state || "").toLowerCase().includes(searchTerm) ||
+      (prop.description || "").toLowerCase().includes(searchTerm) ||
+      (prop.type || "").toLowerCase().includes(searchTerm) ||
+      (prop.status || "").toLowerCase().includes(searchTerm) ||
+      amenityHit
     );
   });
   const activeChips = document.querySelectorAll("#quick-filters .filter-chip.active");
@@ -258,7 +264,7 @@ function updateFavoritesCount() {
   const countEl = document.getElementById("favorites-count");
   if (countEl) countEl.textContent = String(favorites.length);
   const userSaved = document.getElementById("user-saved-count");
-  if (userSaved) userSaved.textContent = String(favorites.length || 24);
+  if (userSaved) userSaved.textContent = String(favorites.length);
 }
 
 function showFavoritesModal() {
@@ -330,7 +336,7 @@ function showCompareModal() {
     { label: "Bathrooms", get: (p) => p.bathrooms },
     { label: "Living Area", get: (p) => p.area.toLocaleString() + " sqft" },
     { label: "Year Built", get: (p) => p.yearBuilt },
-    { label: "Rating", get: (p) => `★ ${p.rating} (${p.reviewsCount})` },
+    { label: "Sample score", get: (p) => `★ ${p.rating}` },
     { label: "Listed", get: (p) => new Date(p.listedDate).toLocaleDateString() },
     { label: "Status", get: (p) => p.status },
   ];

@@ -277,49 +277,62 @@ function runAIValuation(e) {
   const area = clamp(parseInt(document.getElementById("val-area")?.value, 10) || 7850, 200, 200000);
 
   createModal(
-    "Atconiz AI Valuation",
+    "Atconiz Estimate",
     `
     <div style="padding:50px 60px;text-align:center;">
       <div style="margin-bottom:30px;">
-        <div style="font-size:15px;color:var(--accent);font-weight:700;">ANALYZING WITH ATCONIZ-3</div>
+        <div style="font-size:15px;color:var(--accent);font-weight:700;">DETERMINISTIC REFERENCE MODEL</div>
         <div style="margin-top:12px;font-size:21px;font-weight:600;">${escapeHtml(address)}</div>
       </div>
       <div style="margin:50px 0;">
         <div class="skeleton" style="height:6px;width:280px;margin:0 auto;border-radius:9999px;"></div>
-        <div style="margin-top:18px;font-size:13px;color:var(--text-secondary);">Processing comparable transactions...</div>
+        <div style="margin-top:18px;font-size:13px;color:var(--text-secondary);">Applying area, beds, baths, and age factors...</div>
       </div>
     </div>`
   );
 
   setTimeout(() => {
     closeCurrentModal();
-    const baseVal =
-      area * 2850 + beds * 180000 + baths * 95000 + (2026 - year) * -45000;
-    const finalVal = Math.max(
-      250000,
-      Math.round(baseVal * (0.92 + Math.random() * 0.16))
-    );
+    // Deterministic formula — no random perturbation
+    // Components: area ($/sqft), bedrooms, bathrooms, age depreciation
+    const areaComponent = area * 2850;
+    const bedsComponent = beds * 180000;
+    const bathsComponent = baths * 95000;
+    const ageAdjustment = (2026 - year) * -45000;
+    const baseVal = areaComponent + bedsComponent + bathsComponent + ageAdjustment;
+    const finalVal = Math.max(250000, Math.round(baseVal));
+    const rangeLow = Math.round(finalVal * 0.9);
+    const rangeHigh = Math.round(finalVal * 1.1);
+
     createModal(
-      "Valuation Complete",
+      "Estimate Complete",
       `
       <div style="padding:42px 50px 50px;">
         <div style="text-align:center;margin-bottom:30px;">
-          <div style="font-size:13px;color:var(--text-secondary);">ESTIMATED MARKET VALUE</div>
+          <div style="font-size:13px;color:var(--text-secondary);">REFERENCE ESTIMATE (NOT A FORMAL APPRAISAL)</div>
           <div style="font-size:52px;font-weight:700;margin:12px 0;color:var(--accent);">${formatPrice(finalVal)}</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.15);color:#10b981;padding:4px 16px;border-radius:9999px;font-size:13px;font-weight:600;">94% CONFIDENCE • ±$420K</div>
+          <div style="font-size:14px;color:var(--text-secondary);">Illustrative range: ${formatPrice(rangeLow)} – ${formatPrice(rangeHigh)}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin:40px 0;">
+        <div style="margin:20px 0;padding:16px 18px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:14px;font-size:13.5px;color:var(--text-secondary);line-height:1.7;text-align:left;">
+          <strong style="color:var(--text-primary);">Factors used</strong><br>
+          Living area: ${area.toLocaleString()} sqft × $2,850<br>
+          Bedrooms: ${beds} × $180,000<br>
+          Bathrooms: ${baths} × $95,000<br>
+          Age adjustment: (${2026 - year} years) × −$45,000<br>
+          This is a simplified linear model for illustration only.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin:28px 0;">
           <div>
-            <div style="font-weight:600;margin-bottom:14px;">Key Value Drivers</div>
+            <div style="font-weight:600;margin-bottom:14px;">Component mix (illustrative)</div>
             <div style="font-size:14.5px;line-height:2.05;color:var(--text-secondary);">
-              • Exceptional location (+18%)<br>• Recent smart home upgrades (+9%)<br>• Low inventory in micro-market (+12%)<br>• Strong buyer demand in segment
+              • Area / land contribution<br>• Bedroom capacity<br>• Bathroom count<br>• Age / condition proxy
             </div>
           </div>
           <div><canvas id="valuation-pie" width="260" height="200" aria-label="Value composition chart"></canvas></div>
         </div>
         <div style="text-align:center;margin-top:20px;">
           <button type="button" onclick="closeCurrentModal()" class="btn btn-primary" style="padding:15px 48px;">Done</button>
-          <button type="button" onclick="closeCurrentModal();showToast('Report saved to your account.');" class="btn btn-secondary" style="padding:15px 34px;margin-left:12px;">Save Report</button>
+          <button type="button" onclick="closeCurrentModal();showToast('Estimate noted locally.');" class="btn btn-secondary" style="padding:15px 34px;margin-left:12px;">Save Locally</button>
         </div>
       </div>`
     );
@@ -328,7 +341,13 @@ function runAIValuation(e) {
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const data = [42, 28, 18, 12];
+      const total = Math.max(1, areaComponent + bedsComponent + bathsComponent + Math.abs(ageAdjustment));
+      const data = [
+        Math.round((areaComponent / total) * 100),
+        Math.round((bedsComponent / total) * 100),
+        Math.round((bathsComponent / total) * 100),
+        Math.round((Math.abs(ageAdjustment) / total) * 100),
+      ];
       const colors = ["#22d3ee", "#fbbf24", "#10b981", "#64748b"];
       let startAngle = 0;
       data.forEach((val, i) => {
@@ -341,7 +360,7 @@ function runAIValuation(e) {
         startAngle += slice;
       });
     }, 200);
-  }, 1600);
+  }, 900);
 }
 
 function runQuickValuation(propId) {

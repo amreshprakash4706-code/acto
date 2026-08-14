@@ -113,8 +113,8 @@
         </h1>
         
         <p style="font-size: 22px; color: var(--text-secondary); max-width: 520px; margin-bottom: 42px;">
-          Curated collection of the world's most exceptional properties, 
-          guided by proprietary AI intelligence Powered by Gemini.
+          Curated sample catalog of exceptional properties,
+          guided by Atconiz AI powered by Gemini.
         </p>
         
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
@@ -122,14 +122,14 @@
             Browse Properties
           </button>
           <button type="button" onclick="openAIChat()" class="btn btn-secondary" style="padding: 18px 36px; font-size: 17px;">
-            ✦ Chat with Gemini 3.6 Flash
+            ✦ Chat with Atconiz AI
           </button>
         </div>
         
         <div style="margin-top: 60px; display: flex; gap: 48px; font-size: 14px;">
-          <div><span style="font-weight:700; font-size:21px;">142k</span><br><span style="color:var(--text-secondary)">Properties analyzed</span></div>
-          <div><span style="font-weight:700; font-size:21px;">98.4%</span><br><span style="color:var(--text-secondary)">Match accuracy</span></div>
-          <div><span style="font-weight:700; font-size:21px;">4.9</span><br><span style="color:var(--text-secondary)">Client rating</span></div>
+          <div><span style="font-weight:700; font-size:21px;">100</span><br><span style="color:var(--text-secondary)">Sample listings</span></div>
+          <div><span style="font-weight:700; font-size:21px;">15+</span><br><span style="color:var(--text-secondary)">Cities in catalog</span></div>
+          <div><span style="font-weight:700; font-size:21px;">AI</span><br><span style="color:var(--text-secondary)">Assisted research</span></div>
         </div>
       </div>
     </div>
@@ -140,24 +140,24 @@
     </div>
   </div>
 
-  <!-- Stats Bar -->
+  <!-- Stats Bar — values filled from local sample catalog at boot -->
   <div style="max-width: 1280px; margin: -60px auto 80px; padding: 0 40px; position: relative; z-index: 10;">
     <div class="glass" style="border-radius: 24px; padding: 32px 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px;">
       <div>
-        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">GLOBAL PROPERTIES</div>
-        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-properties">142,847</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">SAMPLE LISTINGS</div>
+        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-properties">100</div>
       </div>
       <div>
-        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">CITIES WORLDWIDE</div>
-        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-cities">184</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">CITIES IN CATALOG</div>
+        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-cities">—</div>
       </div>
       <div>
-        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">AI MATCHES THIS MONTH</div>
-        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-matches">18,492</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">PROPERTY TYPES</div>
+        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;" id="stat-matches">—</div>
       </div>
       <div>
-        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">AVERAGE CLIENT NET WORTH</div>
-        <div style="font-size: 42px; font-weight: 700; letter-spacing: -2px;">$47.3M</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">DATA SOURCE</div>
+        <div style="font-size: 28px; font-weight: 700; letter-spacing: -1px; margin-top: 6px;">Local seed</div>
       </div>
     </div>
   </div>
@@ -180,7 +180,7 @@
 <div id="view-explore" class="view" style="max-width: 1480px; margin: 0 auto; padding: 40px;">
   <div style="margin-bottom: 32px;">
     <div class="section-title" style="font-size: 38px;">Discover Properties</div>
-    <p class="section-subtitle">100 exceptional homes curated by Atconiz AI across the world's most desirable locations.</p>
+    <p class="section-subtitle">100 sample luxury listings for demonstration. Seed data only — not verified live inventory.</p>
   </div>
 
   <!-- Search & Filters -->
@@ -226,15 +226,15 @@
   <div style="margin-bottom: 48px;">
     <div style="font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 3px;">ATCONIZ INTELLIGENCE</div>
     <div class="section-title">AI Studio</div>
-    <p class="section-subtitle">Proprietary models trained on 12 years of private transaction data and global market signals.</p>
+    <p class="section-subtitle">Reference estimates, investment projections, and AI chat — transparent formulas, sample catalog, no invented accuracy claims.</p>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
     <!-- AI Valuation -->
     <div class="glass" style="padding: 40px; border-radius: 24px;">
       <div style="margin-bottom: 24px;">
-        <div style="font-size: 22px; font-weight: 700;">AI Property Valuation</div>
-        <div style="color: var(--text-secondary);">Instant, data-driven appraisal powered by Atconiz-3</div>
+        <div style="font-size: 22px; font-weight: 700;">Property Value Estimate</div>
+        <div style="color: var(--text-secondary);">Deterministic reference model — not a formal appraisal</div>
       </div>
       
       <form id="valuation-form" onsubmit="runAIValuation(event)">
@@ -313,15 +313,15 @@
   <div class="glass" style="margin-top: 40px; padding: 40px; border-radius: 24px; border: 2px solid var(--accent);">
     <div style="margin-bottom: 24px;">
       <div style="font-size: 22px; font-weight: 700;">Global Property & Land Price Calculator</div>
-      <div style="color: var(--text-secondary);">Accurate real-time estimates in 20+ currencies • Land-only mode • Any country worldwide • Matches offline market prices</div>
+      <div style="color: var(--text-secondary);">Reference estimates in multiple currencies • Land-only mode • Transparent static rates • Not live market feeds</div>
     </div>
     
     <button onclick="openGlobalPriceCalculator()" class="btn btn-primary" style="width:100%; padding:20px; font-size:18px; box-shadow: 0 0 0 8px rgba(34,211,238,0.15);">
-      Open Advanced Global Calculator →
+      Open Global Calculator →
     </button>
     
     <div style="margin-top: 20px; font-size: 13px; color: var(--text-secondary); text-align: center;">
-      Supports land valuation in any country • Real 2026 market data • Instant currency conversion
+      Static reference land rates • Currency conversion table • For illustration only
     </div>
   </div>
 
@@ -547,7 +547,7 @@
           <li>✓ Priority viewings</li>
           <li>✓ Dedicated Atconiz concierge</li>
           <li>✓ Investment modeling</li>
-          <li>✓ Off-market opportunities</li>
+          <li>✓ Priority support (when backend connected)</li>
         </ul>
         <button class="btn btn-primary" style="width:100%;">Subscribe</button>
       </div>
