@@ -15,6 +15,9 @@ function mulberry32(a) {
 }
 const seededRandom = mulberry32(20260717);
 
+/** Fixed reference epoch so listedDate and other derived fields stay deterministic across runs. */
+const REFERENCE_EPOCH_MS = Date.UTC(2026, 6, 17, 12, 0, 0); // 2026-07-17T12:00:00Z
+
 /** @type {Array<Object>} */
 let properties = [];
 /** @type {Array<Object>} */
@@ -100,19 +103,23 @@ const globalData = {
   },
 };
 
+/**
+ * Static REFERENCE FX rates for illustration only.
+ * dataStatus: "reference" — not live market rates.
+ */
 const currencies = {
-  USD: { name: "US Dollar", rate: 1, symbol: "$" },
-  EUR: { name: "Euro", rate: 0.93, symbol: "€" },
-  GBP: { name: "British Pound", rate: 0.79, symbol: "£" },
-  INR: { name: "Indian Rupee", rate: 84.2, symbol: "₹" },
-  AED: { name: "UAE Dirham", rate: 3.67, symbol: "د.إ" },
-  SGD: { name: "Singapore Dollar", rate: 1.36, symbol: "S$" },
-  AUD: { name: "Australian Dollar", rate: 1.52, symbol: "A$" },
-  CAD: { name: "Canadian Dollar", rate: 1.39, symbol: "C$" },
-  JPY: { name: "Japanese Yen", rate: 155, symbol: "¥" },
-  CNY: { name: "Chinese Yuan", rate: 7.25, symbol: "¥" },
-  CHF: { name: "Swiss Franc", rate: 0.89, symbol: "CHF" },
-  HKD: { name: "Hong Kong Dollar", rate: 7.82, symbol: "HK$" },
+  USD: { name: "US Dollar", rate: 1, symbol: "$", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  EUR: { name: "Euro", rate: 0.93, symbol: "€", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  GBP: { name: "British Pound", rate: 0.79, symbol: "£", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  INR: { name: "Indian Rupee", rate: 84.2, symbol: "₹", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  AED: { name: "UAE Dirham", rate: 3.67, symbol: "د.إ", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  SGD: { name: "Singapore Dollar", rate: 1.36, symbol: "S$", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  AUD: { name: "Australian Dollar", rate: 1.52, symbol: "A$", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  CAD: { name: "Canadian Dollar", rate: 1.39, symbol: "C$", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  JPY: { name: "Japanese Yen", rate: 155, symbol: "¥", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  CNY: { name: "Chinese Yuan", rate: 7.25, symbol: "¥", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  CHF: { name: "Swiss Franc", rate: 0.89, symbol: "CHF", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
+  HKD: { name: "Hong Kong Dollar", rate: 7.82, symbol: "HK$", dataStatus: "reference", effectiveDate: "2026-07-17", source: "static-reference" },
 };
 
 const citiesData = [
@@ -262,7 +269,10 @@ function generateProperties() {
     const yearBuilt = 2012 + Math.floor(seededRandom() * 13);
     const status = seededRandom() > 0.92 ? "Under Contract" : "For Sale";
     const daysAgo = Math.floor(seededRandom() * 380);
-    const listedDate = new Date(Date.now() - daysAgo * 86400000).toISOString().split("T")[0];
+    // Fixed reference date keeps the entire catalog deterministic
+    const listedDate = new Date(REFERENCE_EPOCH_MS - daysAgo * 86400000)
+      .toISOString()
+      .split("T")[0];
     const parking = Math.floor(seededRandom() * 5) + 2;
     const lotSize = Math.round(template.area * 1.8 + seededRandom() * 18000);
     const latJitter = (seededRandom() - 0.5) * 0.12;
@@ -309,6 +319,12 @@ function generateProperties() {
       listedDate,
       parking,
       lotSize,
+      // Explicit sample/reference semantics — never presented as verified live inventory
+      dataStatus: "sample",
+      sourceType: "synthetic",
+      verificationStatus: "unverified",
+      methodologyVersion: "3.5.0",
+      effectiveDate: "2026-07-17",
     });
   }
 

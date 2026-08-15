@@ -393,18 +393,18 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px;">
       <div class="glass stats-card" style="padding: 28px; border-radius: 20px;">
         <div style="font-size:13px; color:var(--text-secondary);">SAVED PROPERTIES</div>
-        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;" id="user-saved-count">24</div>
-        <div style="font-size:13px; color:var(--success);">+3 this week</div>
+        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;" id="user-saved-count">0</div>
+        <div style="font-size:13px; color:var(--text-secondary);">Local favorites only</div>
       </div>
       <div class="glass stats-card" style="padding: 28px; border-radius: 20px;">
-        <div style="font-size:13px; color:var(--text-secondary);">AI RECOMMENDATIONS</div>
-        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;">37</div>
-        <div style="font-size:13px; color:var(--accent);">12 new today</div>
+        <div style="font-size:13px; color:var(--text-secondary);">SAMPLE CATALOG</div>
+        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;" id="user-catalog-count">100</div>
+        <div style="font-size:13px; color:var(--text-secondary);">Demonstration listings</div>
       </div>
       <div class="glass stats-card" style="padding: 28px; border-radius: 20px;">
-        <div style="font-size:13px; color:var(--text-secondary);">SCHEDULED VIEWINGS</div>
-        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;" id="user-viewings">5</div>
-        <div style="font-size:13px;">Next: Tomorrow 3:00 PM</div>
+        <div style="font-size:13px; color:var(--text-secondary);">VIEWING REQUESTS</div>
+        <div style="font-size: 42px; font-weight: 700; margin: 8px 0;" id="user-viewings">0</div>
+        <div style="font-size:13px; color:var(--text-secondary);">Local requests (not confirmed)</div>
       </div>
     </div>
 
@@ -417,20 +417,9 @@
     </div>
 
     <div>
-      <div style="font-weight:700; font-size:21px; margin-bottom:20px;">Recent Activity Timeline</div>
-      <div class="glass" style="border-radius:20px; padding:12px;">
-        <div style="padding:16px 20px; border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between;">
-          <div>Viewed <strong>1088 Summit Drive</strong></div>
-          <div style="color:var(--text-secondary);">2 hours ago</div>
-        </div>
-        <div style="padding:16px 20px; border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between;">
-          <div>Saved <strong>Four Seasons Private Residence</strong></div>
-          <div style="color:var(--text-secondary);">Yesterday</div>
-        </div>
-        <div style="padding:16px 20px; display:flex; justify-content:space-between;">
-          <div>AI Valuation completed for <strong>Malibu Estate</strong></div>
-          <div style="color:var(--text-secondary);">Mar 12</div>
-        </div>
+      <div style="font-weight:700; font-size:21px; margin-bottom:20px;">Local Activity</div>
+      <div class="glass" style="border-radius:20px; padding:20px;" id="user-activity-timeline">
+        <div style="color:var(--text-secondary); font-size:14px;">Activity from this browser appears here. Favorites, viewing requests, and saved estimates are stored only in localStorage (sample data environment).</div>
       </div>
     </div>
   </div>

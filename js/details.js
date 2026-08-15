@@ -181,7 +181,7 @@ function submitReview(propId) {
   const comment = (document.getElementById("review-comment")?.value || "Wonderful property!").trim().slice(0, 1000);
   if (!reviewsData[propId]) reviewsData[propId] = [];
   reviewsData[propId].push({ name, rating, comment, date: new Date().toISOString() });
-  localStorage.setItem("atconiz_reviews", JSON.stringify(reviewsData));
+  safeSetJSON("atconiz_reviews", reviewsData);
   closeCurrentModal();
   showToast("Thank you! Your review has been published.");
   setTimeout(() => showPropertyDetails(propId), 600);
@@ -211,7 +211,7 @@ function scheduleViewing(propId) {
         <textarea id="viewing-notes" placeholder="Any specific requirements or questions for the agent..." rows="3" maxlength="500"></textarea>
       </div>
       <div style="display:flex;gap:14px;">
-        <button type="button" onclick="confirmViewing(${propId})" class="btn btn-primary" style="flex:1;padding:16px;">Confirm Viewing</button>
+        <button type="button" onclick="confirmViewing(${propId})" class="btn btn-primary" style="flex:1;padding:16px;">Request Viewing</button>
         <button type="button" onclick="closeCurrentModal()" class="btn btn-secondary" style="flex:1;padding:16px;">Cancel</button>
       </div>
     </div>`);
@@ -230,9 +230,22 @@ function confirmViewing(propId) {
     return;
   }
   closeCurrentModal();
-  visitsData.push({ id: Date.now(), propId, date, time: selectedTime, status: "Confirmed" });
-  localStorage.setItem("atconiz_visits", JSON.stringify(visitsData));
-  showToast("Viewing scheduled successfully. Check your dashboard for details.");
+  // Local-only request — no backend confirmation exists, so status is Requested
+  visitsData.push({
+    id: Date.now(),
+    propId,
+    date,
+    time: selectedTime,
+    status: "Requested",
+    notes: (document.getElementById("viewing-notes")?.value || "").trim().slice(0, 500),
+    createdAt: new Date().toISOString(),
+  });
+  try {
+    safeSetJSON("atconiz_visits", visitsData);
+  } catch {
+    /* quota */
+  }
+  showToast("Viewing request saved locally. An agent will need to confirm (local demo only).");
   setTimeout(() => {
     const countEl = document.getElementById("user-viewings");
     if (countEl) countEl.textContent = String(parseInt(countEl.textContent, 10) + 1);

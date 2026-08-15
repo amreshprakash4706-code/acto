@@ -12,16 +12,29 @@ function switchDashboardTab(tab) {
   });
   const tabEl = document.getElementById("tab-" + tab);
   if (tabEl) { tabEl.classList.add("active"); tabEl.setAttribute("aria-selected", "true"); }
-  if (tab === "user") renderRecommendedProperties();
+  if (tab === "user") {
+    updateUserDashboardStats();
+    renderRecommendedProperties();
+  }
   if (tab === "agent") renderAgentDashboard();
   if (tab === "admin") renderAdminDashboard();
   if (tab === "analytics") renderAnalyticsCharts();
+}
+
+function updateUserDashboardStats() {
+  const savedEl = document.getElementById("user-saved-count");
+  const viewingsEl = document.getElementById("user-viewings");
+  const catalogEl = document.getElementById("user-catalog-count");
+  if (savedEl) savedEl.textContent = String(Array.isArray(favorites) ? favorites.length : 0);
+  if (viewingsEl) viewingsEl.textContent = String(Array.isArray(visitsData) ? visitsData.length : 0);
+  if (catalogEl) catalogEl.textContent = String(Array.isArray(properties) ? properties.length : 0);
 }
 
 function renderRecommendedProperties() {
   const container = document.getElementById("recommended-grid");
   if (!container) return;
   container.innerHTML = "";
+  // Sample recommendations from local catalog only
   const recs = properties.slice().sort((a, b) => b.rating - a.rating).slice(0, 6);
   const frag = document.createDocumentFragment();
   recs.forEach((prop) => frag.appendChild(createPropertyCard(prop)));

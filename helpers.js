@@ -189,12 +189,20 @@ function showToast(message, type = "success") {
 
 /**
  * Safe localStorage helpers (never throw).
+ * Supports optional schema version for future migrations.
  */
+const STORAGE_SCHEMA_VERSION = 1;
+
 function safeGetJSON(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
     if (raw == null) return fallback;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    // Backward compatible: unwrap versioned envelope if present
+    if (parsed && typeof parsed === "object" && parsed.__v != null && "data" in parsed) {
+      return parsed.data;
+    }
+    return parsed;
   } catch {
     return fallback;
   }
@@ -202,9 +210,16 @@ function safeGetJSON(key, fallback) {
 
 function safeSetJSON(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        __v: STORAGE_SCHEMA_VERSION,
+        data: value,
+        updatedAt: new Date().toISOString(),
+      })
+    );
   } catch {
-    /* quota / private mode */
+    /* quota / private mode — silently ignore */
   }
 }
 

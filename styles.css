@@ -707,6 +707,21 @@ img, video, canvas {
   font-weight: 600;
   backdrop-filter: blur(10px);
 }
+.card-data-status {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(234, 179, 8, 0.9);
+  color: #0f172a;
+  padding: 2px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 2;
+  pointer-events: none;
+}
 .card-body {
   padding: 22px 22px 24px;
 }

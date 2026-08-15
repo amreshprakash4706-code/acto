@@ -51,6 +51,7 @@ function createPropertyCard(prop, options = {}) {
           <span style="font-size:15px;" aria-hidden="true">⚖︎</span></label>` : ""}
       </div>
       <div class="card-status">${status}</div>
+      <div class="card-data-status" title="Demonstration seed data — not a verified live listing">SAMPLE</div>
     </div>
     <div class="card-body">
       <div class="card-price-row">
@@ -71,7 +72,7 @@ function createPropertyCard(prop, options = {}) {
       </div>
       <div class="card-footer">
         <div class="card-type-pill">${type}</div>
-        <div style="color:var(--text-secondary);">${new Date(prop.listedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</div>
+        <div style="color:var(--text-secondary);">${prop.listedDate ? new Date(prop.listedDate + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" }) : "—"}</div>
       </div>
     </div>`;
 
@@ -256,7 +257,7 @@ function toggleFavorite(id, btn) {
     favorites.push(id);
     if (btn) { btn.classList.add("active"); btn.setAttribute("aria-pressed", "true"); btn.setAttribute("aria-label", "Remove from saved"); }
   }
-  localStorage.setItem("atconiz_favorites", JSON.stringify(favorites));
+  safeSetJSON("atconiz_favorites", favorites);
   updateFavoritesCount();
 }
 

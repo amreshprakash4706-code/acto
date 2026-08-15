@@ -49,7 +49,7 @@ function initNavIndicator() {
 function toggleTheme() {
   currentTheme = currentTheme === "dark" ? "light" : "dark";
   document.documentElement.classList.toggle("light", currentTheme === "light");
-  localStorage.setItem("atconiz_theme", currentTheme);
+  try { localStorage.setItem("atconiz_theme", currentTheme); } catch {}
   const toggle = document.getElementById("theme-toggle");
   if (toggle) toggle.innerHTML = currentTheme === "dark" ? "☀︎" : "☾";
   const analytics = document.getElementById("dashboard-analytics");

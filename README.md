@@ -2,7 +2,7 @@
 
 Luxury real-estate intelligence platform with a sample property catalog, transparent reference calculators, AI chat (Gemini), and multi-role dashboards.
 
-**Version 3.4** — Production hardening focused on truthful data semantics, API security, deterministic financial estimates, and honest empty/local states.
+**Version 3.5** — Production hardening focused on truthful data semantics, API security, deterministic financial estimates, and honest empty/local states.
 
 ## Structure
 
@@ -95,6 +95,18 @@ Required environment variable:
 | `GEMINI_API_KEY` | For AI  | Google AI Studio API key   |
 
 Do not commit a real `.env` file.
+
+## Version notes (3.5)
+
+- Fixed DOM-XSS class: removed user-controlled values from inline JS attributes (calculators)
+- Gemini AI: current production models (gemini-3.7/3.6/3.5/2.5-flash), proper `systemInstruction` separation
+- Per-attempt timeout/AbortController — no reused rejected timeout promises
+- Rate limiting: concurrent protection + improved IP extraction for Vercel
+- Deterministic catalog: fixed reference epoch (no Date.now in seed generation)
+- Explicit `dataStatus: sample` / currency provenance metadata
+- Viewing requests use status `Requested` (honest local-only semantics)
+- User dashboard stats derived from local favorites/visits (no fake metrics)
+- SAMPLE badges on property cards; expanded validation suite (50 checks)
 
 ## Version notes (3.4)
 

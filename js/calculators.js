@@ -212,23 +212,45 @@ function calculateGlobalPrice() {
         </div>
       </div>
       <div style="display:flex;gap:12px;margin-top:30px;">
-        <button type="button" onclick="saveCalculation(${result.estimatedUSD},'${escapeHtml(result.currency)}','${escapeHtml(result.country)}','${escapeHtml(result.city)}','${escapeHtml(result.type)}');closeCurrentModal();" class="btn btn-primary" style="flex:1;padding:16px;">Save to My Valuations</button>
-        <button type="button" onclick="closeCurrentModal()" class="btn btn-secondary" style="flex:1;padding:16px;">Close</button>
+        <button type="button" id="btn-save-calculation" class="btn btn-primary" style="flex:1;padding:16px;">Save to My Valuations</button>
+        <button type="button" id="btn-close-estimate" class="btn btn-secondary" style="flex:1;padding:16px;">Close</button>
       </div>
     </div>`
   );
+
+  // Safe event binding — never embed user-controlled values in inline JS attributes
+  setTimeout(() => {
+    const saveBtn = document.getElementById("btn-save-calculation");
+    const closeBtn = document.getElementById("btn-close-estimate");
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        saveCalculation(
+          result.estimatedUSD,
+          result.currency,
+          result.country,
+          result.city,
+          result.type
+        );
+        closeCurrentModal();
+      });
+    }
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => closeCurrentModal());
+    }
+  }, 0);
 }
 
 function saveCalculation(usdValue, currency, country, city, type) {
   const calc = {
     id: Date.now(),
     date: new Date().toISOString(),
-    usdValue,
-    currency,
-    country,
-    city,
-    type,
+    usdValue: Number(usdValue) || 0,
+    currency: String(currency || "USD").slice(0, 8),
+    country: String(country || "").slice(0, 80),
+    city: String(city || "").slice(0, 80),
+    type: String(type || "").slice(0, 40),
     convertedValue: convertCurrency(usdValue, currency),
+    dataStatus: "reference",
   };
   savedCalculations.unshift(calc);
   if (savedCalculations.length > 20) savedCalculations.pop();

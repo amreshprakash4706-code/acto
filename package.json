@@ -1,8 +1,8 @@
 {
   "name": "atconiz",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "private": true,
-  "description": "Atconiz — Luxury real-estate intelligence platform (production-hardened)",
+  "description": "Atconiz — Luxury real-estate intelligence platform (production-hardened v3.5)",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
@@ -26,6 +26,6 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@google/genai": "^2.10.0"
+    "@google/genai": "^2.17.1"
   }
 }
