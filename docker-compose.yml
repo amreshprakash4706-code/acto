@@ -1,0 +1,27 @@
+# Local development dependencies for Atconiz
+# Usage: docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: atconiz
+      POSTGRES_PASSWORD: atconiz
+      POSTGRES_DB: atconiz
+    ports:
+      - "5432:5432"
+    volumes:
+      - atconiz_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atconiz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Optional Redis for distributed rate limiting (not required for basic operation)
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+
+volumes:
+  atconiz_pg:

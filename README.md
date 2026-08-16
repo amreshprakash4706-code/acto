@@ -1,124 +1,219 @@
-# Atconiz — AI Real Estate Intelligence Platform
+# Atconiz — Production Full-Stack Real-Estate Intelligence Platform
 
-Luxury real-estate intelligence platform with a sample property catalog, transparent reference calculators, AI chat (Gemini), and multi-role dashboards.
+**Version 4.0.0**
 
-**Version 3.5** — Production hardening focused on truthful data semantics, API security, deterministic financial estimates, and honest empty/local states.
+Luxury real-estate intelligence platform with a real Node.js backend, PostgreSQL persistence, authentication, RBAC, and a secure Gemini AI gateway.
 
-## Structure
+This is **not** a demo or sample catalog application. The previous client-side seeded inventory and localStorage-only user data layer have been replaced by a modular Express + Prisma + PostgreSQL architecture.
+
+## Architecture
+
+```
+Browser (vanilla SPA — existing Atconiz UI preserved)
+        │
+        ▼
+Express Node.js server (server/)
+        │
+        ├── REST API (/api/*)
+        ├── Static SPA delivery
+        ├── Auth (JWT + refresh tokens, bcrypt)
+        ├── RBAC (USER / AGENT / ADMIN)
+        ├── Secure AI gateway (Gemini key stays server-side)
+        └── PostgreSQL (Prisma)
+```
+
+### Key principles
+
+- **No fake inventory** — Production database starts empty (or contains only records you create). Development seed data is explicitly marked `SEED_DEVELOPMENT` and must never be presented as live market inventory.
+- **No localStorage as source of truth** — Favorites, reviews, viewings, calculations, and contact requests are persisted in PostgreSQL for authenticated users.
+- **No client-side authorization** — All privileged operations are enforced on the backend.
+- **No secret exposure** — `GEMINI_API_KEY`, JWT secrets, and database credentials never leave the server.
+- **Truthful empty states** — Missing data returns proper API errors / empty collections, not fabricated metrics.
+
+## Project structure
 
 ```
 atconiz/
-├── index.html              # Semantic SPA markup
-├── styles.css              # Design system (tokens, components, a11y)
-├── properties.js           # Seeded sample catalog + client state
-├── helpers.js              # escapeHtml, formatPrice, debounce, toast, etc.
+├── index.html, styles.css, helpers.js, properties.js   # Frontend (preserved visual identity)
 ├── js/
-│   ├── core.js             # Nav, theme, views, modals
-│   ├── cards.js            # Cards, filters, favorites, compare
-│   ├── details.js          # Property details, reviews, viewings
-│   ├── chat.js             # AI chat panel, valuation estimate, investment
-│   ├── calculators.js      # Global price + mortgage calculators
-│   └── dashboards.js       # Dashboards, content, boot
-├── api/
-│   ├── chat.js             # Gemini AI (rate-limited, no secret leakage)
-│   └── hello.js            # Health check (status only)
-├── scripts/
-│   └── validate.js         # Static validation surface
-├── vercel.json             # Security headers + CSP + caching
+│   ├── api/client.js                                   # Central API client
+│   ├── core.js, cards.js, details.js, chat.js, ...
+├── server/
+│   ├── app.js, server.js
+│   ├── config/
+│   ├── controllers/, routes/, services/, middleware/
+│   ├── validators/, ai/, db/schema.prisma
+│   ├── logging/, utils/, tests/
+├── docker-compose.yml                                  # Local Postgres
+├── .env.example
 ├── package.json
 └── README.md
 ```
 
-## Data semantics (important)
+## Requirements
 
-- The default **100 properties** are **seed/sample data** generated deterministically for demonstration.
-- They are **not** verified live listings.
-- Dashboard metrics and charts are derived from the **local catalog** only (or show “local / not connected”).
-- Valuation and global price outputs are **reference estimates** with transparent factors — **not** formal appraisals and **not** claimed “real market matched” percentages.
-- Favorites, reviews, viewing requests, contact drafts, and saved estimates persist in **browser localStorage** only unless you connect a real backend.
-- Contact form is **local-only** (drafts stored in the browser; nothing is sent).
+- Node.js ≥ 20
+- PostgreSQL 14+ (local or managed)
+- Optional: Docker (for local Postgres via docker-compose)
 
-## Key features
-
-- Sample luxury catalog with filters, search (title, location, type, description, amenities), sort, favorites, compare (up to 3)
-- AI chat via `/api/chat` (Gemini cascade, rate limiting, injection guards)
-- Deterministic property value estimate and global land/price calculator
-- Mortgage calculator with zero-interest handling and amortization preview
-- Multi-role dashboard panels using real catalog-derived stats
-- Dark / light theme, keyboard-accessible modals with focus trap
-- XSS-safe rendering (`escapeHtml` / `textContent`) for dynamic content
-
-## Running locally
+## Quick start (development)
 
 ```bash
+# 1. Install dependencies
 npm install
-npx vercel dev
-# or static only (AI endpoint unavailable without serverless)
-npx serve .
+
+# 2. Start Postgres (example with Docker)
+docker compose up -d
+
+# 3. Configure environment
+cp .env.example .env
+# Edit DATABASE_URL, JWT_SECRET, SESSION_SECRET, optionally GEMINI_API_KEY
+
+# 4. Generate Prisma client & run migrations
+npx prisma generate --schema=server/db/schema.prisma
+npx prisma migrate dev --schema=server/db/schema.prisma --name init
+
+# 5. (Optional) Seed development accounts + one marked seed property
+npm run db:seed
+
+# 6. Start the server
+npm run dev
 ```
 
-Set `GEMINI_API_KEY` in `.env` (see `.env.example`) or in the Vercel project environment variables (Production + Preview).
+Open http://localhost:3000
 
-```bash
-npm run check   # static validation (syntax, integrity, API safety)
+### Seed accounts (development only)
+
+| Email                 | Password      | Role  |
+|-----------------------|---------------|-------|
+| admin@atconiz.local   | Password123!  | ADMIN |
+| agent@atconiz.local   | Password123!  | AGENT |
+| user@atconiz.local    | Password123!  | USER  |
+
+These are **development helpers**. Do not use them in production.
+
+## API overview
+
+Consistent response envelope:
+
+```json
+{ "success": true, "data": { ... } }
 ```
+
+```json
+{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [] } }
+```
+
+### Auth
+
+- `POST /api/auth/register` — email, password, optional name/role (USER|AGENT)
+- `POST /api/auth/login`
+- `POST /api/auth/logout` (authenticated)
+- `GET  /api/auth/me`
+- `POST /api/auth/refresh`
+- `POST /api/auth/change-password`
+
+### Properties
+
+- `GET    /api/properties` — filter, sort, paginate (public ACTIVE listings)
+- `GET    /api/properties/:id`
+- `POST   /api/properties` — AGENT/ADMIN
+- `PATCH  /api/properties/:id` — owner or ADMIN
+- `DELETE /api/properties/:id` — soft-delete, owner or ADMIN
+
+### User data
+
+- `GET/POST/DELETE /api/favorites`
+- `GET/POST /api/reviews` (+ admin moderate)
+- `GET/POST/PATCH /api/viewings`
+- `POST/GET/PATCH /api/contact-requests`
+
+### AI
+
+- `POST /api/ai/chat` — rate-limited, system prompt isolated, optional property context
+
+### Dashboards
+
+- `GET /api/dashboard/user`
+- `GET /api/dashboard/agent`
+- `GET /api/dashboard/admin`
+
+### Health
+
+- `GET /api/health` — liveness
+- `GET /api/ready` — readiness (DB check)
+
+## Environment variables
+
+See `.env.example`. Critical:
+
+| Variable         | Required (prod) | Description                          |
+|------------------|-----------------|--------------------------------------|
+| DATABASE_URL     | yes             | PostgreSQL connection string         |
+| JWT_SECRET       | yes             | Signing key for access tokens        |
+| SESSION_SECRET   | yes             | Reserved / cookie hardening          |
+| GEMINI_API_KEY   | no              | Enables AI Studio; otherwise 503     |
+| CORS_ORIGINS     | recommended     | Comma-separated allowed origins      |
+
+## Data provenance
+
+Properties and related records carry a `provenance` field:
+
+- `AGENT_CREATED` / `ADMIN_CREATED` / `USER_SUBMITTED`
+- `EXTERNAL_SOURCE` (when a real provider is wired)
+- `SEED_DEVELOPMENT` (local seed only)
+- `REFERENCE` / `UNAVAILABLE`
+
+The UI and API must never label seed or reference data as verified live inventory.
 
 ## Security
 
-- HTML escaping on dynamic content
-- AI system prompt and API key stay server-side
-- GET health endpoints return status only (no key presence, no model list)
-- No wildcard CORS on the chat API
-- Request size limits, rate limiting (in-memory per instance — see limitations below)
-- CSP, HSTS, X-Frame-Options, Permissions-Policy via `vercel.json`
-- Prompt-injection pattern checks plus system/user separation in the prompt
+- Helmet, CORS allow-list, rate limiting (auth / AI / contact / global)
+- bcrypt password hashing
+- JWT access tokens (short-lived) + refresh tokens stored hashed
+- Parameterized queries via Prisma
+- Zod request validation
+- Centralized operational error handling (no stack traces in production responses)
+- Audit log for sensitive actions
+- Soft-delete for properties
 
-### Rate limiting note
+## Testing
 
-The in-memory rate limiter is appropriate for single-instance or light traffic. On multi-instance serverless it is best-effort per instance. For durable distributed limiting, front the API with a shared store (e.g. Redis / Upstash) or edge rate limits.
+```bash
+npm test
+```
 
-## Accessibility
-
-- Skip-friendly structure, focus-visible styles, modal focus trap + restore
-- Semantic buttons, ARIA where needed, live regions for toasts and chat
-- `prefers-reduced-motion` respected (particles, tilt, counters)
-- Keyboard navigation for cards, compare, dialogs
+Current suite covers validators and error classes. Integration tests against a real database can be expanded under `server/tests/`.
 
 ## Deployment
 
-Optimized for Vercel. Security headers are configured in `vercel.json`.
+Recommended:
 
-Required environment variable:
+1. Managed PostgreSQL (RDS, Neon, Supabase, Cloud SQL, …)
+2. Node process (Railway, Render, Fly.io, ECS, Kubernetes, VPS)
+3. Reverse proxy / TLS termination
+4. Set all production secrets via environment
+5. Run `npm run db:migrate` on deploy
+6. Optional object storage for property media (interface ready; configure when needed)
 
-| Variable         | Required | Description                |
-|------------------|----------|----------------------------|
-| `GEMINI_API_KEY` | For AI  | Google AI Studio API key   |
+The previous Vercel serverless-only model is no longer the primary runtime. The Express server serves both the API and the static SPA.
 
-Do not commit a real `.env` file.
+## Frontend notes
 
-## Version notes (3.5)
+- Visual language, layout, theme, calculators, and accessibility improvements are preserved.
+- `js/api/client.js` is the single API surface used by new flows.
+- Property catalog is loaded from `GET /api/properties`. Empty results show an honest empty state.
+- LocalStorage is retained only for theme preference and temporary offline UX; it is not the authority for favorites/reviews/viewings.
 
-- Fixed DOM-XSS class: removed user-controlled values from inline JS attributes (calculators)
-- Gemini AI: current production models (gemini-3.7/3.6/3.5/2.5-flash), proper `systemInstruction` separation
-- Per-attempt timeout/AbortController — no reused rejected timeout promises
-- Rate limiting: concurrent protection + improved IP extraction for Vercel
-- Deterministic catalog: fixed reference epoch (no Date.now in seed generation)
-- Explicit `dataStatus: sample` / currency provenance metadata
-- Viewing requests use status `Requested` (honest local-only semantics)
-- User dashboard stats derived from local favorites/visits (no fake metrics)
-- SAMPLE badges on property cards; expanded validation suite (50 checks)
+## Remaining intentional limitations
 
-## Version notes (3.4)
+- Object storage uploads (S3/R2) are abstracted but not fully wired to a specific provider until credentials are supplied.
+- Email / push notifications are designed (Notification model exists) but delivery providers are not configured.
+- Distributed rate limiting (Redis) is optional; in-memory limits apply per process by default.
+- Full OpenAPI document can be added; the route modules are the source of truth.
 
-- Removed invented production metrics (user counts, accuracy %, “match” badges)
-- Calculators and AI valuation are deterministic with explicit assumptions
-- Sample data and local-only persistence clearly labeled
-- API chat no longer exposes models or key presence on GET; CORS tightened
-- Dashboards/charts use catalog-derived data or truthful empty/local states
-- Contact form no longer claims messages were delivered
-- Account menu reflects guest/local session (no fake auth UX)
-- Added `scripts/validate.js` integrity checks
+These are configuration/integration gaps, not placeholder core features.
 
----
+## License
 
-Built with precision.
+ISC
