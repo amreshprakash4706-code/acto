@@ -508,9 +508,24 @@ function initHeroParticles() {
   });
 }
 
-function initializePlatform() {
-  generateProperties();
+async function initializePlatform() {
   initTheme();
+
+  // Load real properties from backend API (empty catalog is valid and truthful)
+  if (typeof loadPropertiesFromApi === "function") {
+    try {
+      await loadPropertiesFromApi();
+    } catch (e) {
+      console.warn("[Atconiz] Property load failed", e);
+    }
+  } else {
+    generateProperties(); // no-op compatibility
+  }
+
+  if (typeof syncFavoritesFromApi === "function") {
+    try { await syncFavoritesFromApi(); } catch (e) { /* keep local */ }
+  }
+
   renderFeaturedProperties();
   renderPropertyGrid();
   updateFavoritesCount();
@@ -538,7 +553,7 @@ function initializePlatform() {
     });
   }
 
-  // Hero / stats strip: use real catalog-derived numbers only
+  // Hero / stats strip: derived only from currently loaded (backend) catalog
   setTimeout(() => {
     const cityCount = new Set(properties.map((p) => p.location?.city).filter(Boolean)).size;
     const typeCount = new Set(properties.map((p) => p.type).filter(Boolean)).size;
@@ -549,7 +564,7 @@ function initializePlatform() {
     ].forEach((item) => {
       const el = document.getElementById(item.id);
       if (!el) return;
-      if (prefersReducedMotion()) {
+      if (typeof prefersReducedMotion === "function" && prefersReducedMotion()) {
         el.textContent = item.target.toLocaleString();
         return;
       }
@@ -577,14 +592,15 @@ function initializePlatform() {
     }
   });
 
-  // Do not invent pre-seeded favorites; start empty unless user already saved
-
   if (typeof console !== "undefined" && console.log) {
+    const src = typeof dataSource !== "undefined" ? dataSource : "unknown";
     console.log(
-      "%c[Atconiz] Platform initialized • " + properties.length + " sample properties loaded",
+      "%c[Atconiz] Platform initialized • source=" + src + " • " + properties.length + " properties",
       "color:#64748b"
     );
   }
 }
 
-document.addEventListener("DOMContentLoaded", initializePlatform);
+document.addEventListener("DOMContentLoaded", () => {
+  initializePlatform().catch((err) => console.error("[Atconiz] Boot error", err));
+});
