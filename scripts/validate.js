@@ -35,6 +35,7 @@ const required = [
   "js/chat.js",
   "js/calculators.js",
   "js/dashboards.js",
+  "api/index.js",
   "server/app.js",
   "server/server.js",
   "server/db/schema.prisma",
@@ -56,6 +57,7 @@ required.forEach((f) => {
 console.log("\nSyntax");
 const { execSync } = require("child_process");
 const syntaxFiles = [
+  "api/index.js",
   "server/app.js",
   "server/server.js",
   "server/services/authService.js",

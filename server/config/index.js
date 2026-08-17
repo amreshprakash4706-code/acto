@@ -44,10 +44,12 @@ function loadConfig() {
   };
 
   if (isProd) {
-    for (const key of required) {
-      if (!process.env[key]) {
-        throw new Error(`Missing required environment variable: ${key}`);
-      }
+    const missing = required.filter((key) => !process.env[key]);
+    if (missing.length) {
+      throw new Error(
+        `Missing required environment variable(s): ${missing.join(', ')}. ` +
+        'Set them in Vercel → Project → Settings → Environment Variables (or your host).'
+      );
     }
   }
 
