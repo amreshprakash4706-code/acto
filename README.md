@@ -185,6 +185,54 @@ npm test
 
 Current suite covers validators and error classes. Integration tests against a real database can be expanded under `server/tests/`.
 
+## Deploy on Vercel (frontend + serverless API)
+
+This project can run on Vercel using a serverless Express entry (`api/index.js`).
+
+### Vercel project settings
+
+1. Framework Preset: **Other**
+2. Build Command: leave default (uses `vercel.json` → Prisma generate) or `npx prisma generate --schema=server/db/schema.prisma`
+3. **Output Directory: leave EMPTY** (do not set `public`)
+4. Install Command: `npm install`
+
+### Environment variables (Vercel → Settings → Environment Variables)
+
+| Name | Required | Notes |
+|------|----------|--------|
+| `DATABASE_URL` | yes | Use **Neon** or **Supabase** pooled URL (serverless-friendly) |
+| `JWT_SECRET` | yes | Long random string |
+| `SESSION_SECRET` | yes | Long random string |
+| `GEMINI_API_KEY` | no | Enables AI chat |
+| `NODE_ENV` | yes | `production` |
+| `CORS_ORIGINS` | recommended | `https://your-project.vercel.app` |
+
+### Database on Vercel
+
+Vercel does not host Postgres for you by default. Create a free database on [Neon](https://neon.tech) (or Supabase), run migrations from your machine:
+
+```bash
+npx prisma migrate deploy --schema=server/db/schema.prisma
+```
+
+(using the same `DATABASE_URL`), then deploy.
+
+### Limits on Vercel Hobby
+
+- ~10s function timeout
+- Cold starts on first request
+- Use a **pooled** Postgres connection string
+
+### Local development (unchanged)
+
+```bash
+npm run dev
+```
+
+Still runs the full Express server on port 3000.
+
+---
+
 ## Deployment
 
 Recommended:

@@ -2,7 +2,7 @@
   "name": "atconiz",
   "version": "4.0.0",
   "private": true,
-  "description": "Atconiz — Production full-stack luxury real-estate intelligence platform",
+  "description": "Atconiz \u2014 Production full-stack luxury real-estate intelligence platform",
   "main": "server/server.js",
   "scripts": {
     "dev": "node --watch server/server.js",
@@ -15,7 +15,9 @@
     "db:migrate:dev": "prisma migrate dev --schema=server/db/schema.prisma",
     "db:seed": "node server/db/seeds/seed.js",
     "db:studio": "prisma studio --schema=server/db/schema.prisma",
-    "build": "echo \"No frontend build step (vanilla JS)\""
+    "build": "echo \"No frontend build step (vanilla JS)\"",
+    "postinstall": "prisma generate --schema=server/db/schema.prisma",
+    "vercel-build": "prisma generate --schema=server/db/schema.prisma"
   },
   "keywords": [
     "real-estate",
