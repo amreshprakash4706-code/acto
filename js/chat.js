@@ -208,38 +208,35 @@ async function sendChatMessage() {
       ? setTimeout(() => controller.abort(), 45000)
       : null;
 
-    let data = {};
-    if (typeof AtconizAPI !== "undefined" && AtconizAPI.chat) {
-      const result = await AtconizAPI.chat({ message: userText });
-      data = result && result.data ? result.data : result;
-    } else {
-      const response = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText }),
-        signal: controller?.signal,
-        credentials: "include",
-      });
-      try {
-        const payload = await response.json();
-        data = payload.data || payload;
-        if (!response.ok) {
-          data = { error: (payload.error && payload.error.message) || "Request failed" };
-        }
-      } catch {
-        data = {};
-      }
-    }
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userText }),
+      signal: controller?.signal,
+    });
 
     if (timeoutId) clearTimeout(timeoutId);
     document.getElementById("typing-indicator")?.remove();
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      _lastFailedMessage = userText;
+      addChatMessage(
+        "ai",
+        "The server returned an unexpected response. You can try again.",
+        { retry: true, failedText: userText }
+      );
+      return;
+    }
 
     if (data.reply) {
       _lastFailedMessage = null;
       addChatMessage("ai", data.reply);
     } else if (data.error) {
       _lastFailedMessage = userText;
-      addChatMessage("ai", typeof data.error === "string" ? data.error : (data.error.message || "Error"), { retry: true, failedText: userText });
+      addChatMessage("ai", data.error, { retry: true, failedText: userText });
     } else {
       _lastFailedMessage = userText;
       addChatMessage(

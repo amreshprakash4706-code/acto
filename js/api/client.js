@@ -122,7 +122,7 @@
       request('/api/contact-requests', { method: 'POST', body }),
 
     // AI
-    chat: (body) => request('/api/ai/chat', { method: 'POST', body }),
+    chat: (body) => request('/api/chat', { method: 'POST', body }),
 
     // Dashboards
     userDashboard: () => request('/api/dashboard/user'),
