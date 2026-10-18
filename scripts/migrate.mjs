@@ -26,6 +26,19 @@ if (!databaseUrl) {
   process.exit(0);
 }
 
+function poolConfig(connectionString) {
+  const local = /localhost|127\.0\.0\.1|\[::1\]/.test(connectionString);
+  const sslDisabled = /sslmode=disable/.test(connectionString);
+  return {
+    connectionString,
+    max: 1,
+    connectionTimeoutMillis: 20000,
+    // Vercel Postgres and Neon present a certificate node-pg rejects by default,
+    // which aborts `npm run build` with exit code 1.
+    ssl: local || sslDisabled ? undefined : { rejectUnauthorized: false },
+  };
+}
+
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "migrations");
 
 async function main() {
@@ -42,7 +55,7 @@ async function main() {
     return;
   }
 
-  const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+  const pool = new pg.Pool(poolConfig(databaseUrl));
   const client = await pool.connect();
   try {
     await client.query(
