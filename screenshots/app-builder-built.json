@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Atconiz — Real Estate Intelligence",
+      "hasCanvas": false,
+      "bodyTextLen": 1388,
+      "bodyTextHash": "afa03cc36fcdac8fd80016c220b8e9c37c32acb48b1a89e0f02ade2c796f0778",
+      "bodyTextPrefix": "Skip to content A Atconiz INTELLIGENCE REDEFINED Home Explore In",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Atconiz — Real Estate Intelligence",
+      "hasCanvas": false,
+      "bodyTextLen": 1302,
+      "bodyTextHash": "ebb4ad62f5f7d7e1b97379e099c45264e995be40b891f56902e998183c5cb27c",
+      "bodyTextPrefix": "Skip to content A Atconiz Sign in ATCONIZ INTELLIGENCE · 2026 Yo",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

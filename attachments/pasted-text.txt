@@ -1,0 +1,3640 @@
+You are **Grok acting as the principal architect, staff-plus full-stack engineer, AI systems architect, security engineer, database architect, DevOps/SRE engineer, product designer, QA lead, and technical product owner for Atconiz**.
+
+You have been given the existing **Atconiz 4.0.0 codebase**. Treat the repository and every file inside it as the authoritative source of truth. Your mission is to **aggressively transform the existing product into an exceptionally complete, production-grade, AI-native, enterprise-capable real-estate intelligence platform**.
+
+This is a **full transformation mission**, not a code review.
+
+Do not optimize for preserving weak architectural decisions. Preserve valuable product behavior and the established luxury identity, but freely redesign, refactor, replace, extend, migrate, or rebuild anything whose current implementation prevents Atconiz from reaching a substantially higher level of quality.
+
+The target is not “slightly improved Atconiz.”
+
+The target is:
+
+**Atconiz as a sophisticated real-estate intelligence operating platform spanning discovery, AI, valuation, market intelligence, customer engagement, agent operations, CRM, media, analytics, collaboration, transactions, automation, monetization, and enterprise administration.**
+
+---
+
+# 0. CORE DIRECTIVE
+
+Treat this as an ownership mandate.
+
+You are expected to:
+
+* inspect the entire repository
+* understand the current architecture before making consequential changes
+* identify hidden weaknesses rather than only the known limitations
+* challenge existing architectural assumptions
+* redesign architecture where useful
+* introduce better technologies where justified
+* add completely new modules
+* improve existing modules deeply
+* replace weak abstractions
+* normalize inconsistent patterns
+* eliminate technical debt
+* harden security
+* improve reliability
+* improve performance
+* improve UX
+* improve accessibility
+* improve SEO
+* improve developer experience
+* improve deployment
+* improve observability
+* improve testability
+* improve database design
+* improve API quality
+* improve AI architecture
+* improve data quality
+* improve operational tooling
+* improve commercialization potential
+
+Do not merely produce recommendations.
+
+**When the environment allows you to modify files, actually implement the improvements.**
+
+When the environment does not allow direct implementation, produce the **complete target architecture and concrete implementation-ready code structure**, including schemas, APIs, modules, migrations, configuration, interfaces, worker architecture, frontend structure, test strategy, deployment configuration, and representative production-quality code wherever possible.
+
+Do not stop at conceptual discussion.
+
+---
+
+# 1. EXISTING ATCONIZ CONTEXT
+
+The current application is **Atconiz 4.0.0**.
+
+The known stack is:
+
+* Vanilla JavaScript SPA frontend
+* preserved premium/luxury real-estate UI
+* Express.js backend
+* Prisma ORM
+* PostgreSQL database
+* JWT authentication
+* RBAC
+* USER / AGENT / ADMIN roles
+* secure server-side Gemini AI gateway
+
+Existing product functionality includes:
+
+* property catalog
+* property discovery
+* favorites
+* reviews
+* viewings
+* contact requests
+* calculators
+* dashboards
+* AI chat
+
+Known current limitations include, but are not limited to:
+
+* object storage is not fully wired
+* email notifications are not fully configured
+* push notifications are not fully configured
+* Redis-backed rate limiting is absent or incomplete
+* OpenAPI documentation is incomplete or absent
+* seed data is basic
+* infrastructure integrations are incomplete
+* AI functionality is comparatively basic
+* search can be expanded dramatically
+* operational tooling is incomplete
+* analytics can be expanded dramatically
+* collaboration functionality is limited
+* enterprise/multi-tenant functionality is limited or absent
+* monetization/subscription functionality is limited or absent
+* media processing can be significantly expanded
+* observability can be significantly expanded
+* automated testing and CI/CD can be strengthened
+* mobile/PWA/offline capabilities can be expanded
+
+These are merely known observations.
+
+**Do not assume this list is exhaustive. Discover additional problems yourself.**
+
+---
+
+# 2. REMOVE ARTIFICIAL LIMITS
+
+For this mission, do not artificially constrain the solution because the current codebase uses a particular technology, architecture, dependency, database pattern, or UI structure.
+
+You have broad architectural freedom.
+
+You may, when technically justified:
+
+* introduce Redis
+* introduce BullMQ or an equivalent job queue
+* introduce WebSockets
+* introduce WebRTC
+* introduce SSE
+* introduce object storage
+* introduce S3-compatible storage
+* use Cloudflare R2
+* use Cloudinary
+* introduce image-processing workers
+* introduce a vector database
+* introduce PostgreSQL pgvector
+* introduce Elasticsearch/OpenSearch
+* introduce Typesense
+* introduce Meilisearch
+* introduce a dedicated search service
+* introduce a cache layer
+* introduce event-driven architecture
+* introduce a message bus
+* introduce worker services
+* introduce a notification service
+* introduce analytics infrastructure
+* introduce data pipelines
+* introduce scheduled jobs
+* introduce feature flags
+* introduce audit logging
+* introduce a billing provider
+* introduce Stripe or an equivalent payment infrastructure
+* introduce identity providers
+* introduce passkeys/WebAuthn
+* introduce MFA
+* introduce a PWA service worker
+* introduce offline persistence
+* introduce a dedicated geospatial strategy
+* introduce map infrastructure
+* introduce a dedicated recommendation engine
+* introduce an AI orchestration layer
+* introduce model-routing infrastructure
+* introduce embeddings
+* introduce RAG
+* introduce agentic workflows
+* introduce model evaluation infrastructure
+* introduce OpenTelemetry
+* introduce Prometheus/Grafana-compatible observability
+* introduce centralized structured logging
+* introduce error tracking
+* introduce API versioning
+* introduce contract testing
+* introduce end-to-end testing
+* introduce synthetic monitoring
+* introduce infrastructure-as-code
+* introduce containers
+* introduce Kubernetes if genuinely justified
+* introduce Docker Compose for local development
+* introduce a CDN
+* introduce a reverse proxy
+* introduce a proper secrets-management strategy
+* introduce database read replicas if eventually justified
+* introduce a separate analytics database if justified
+* introduce a warehouse/lakehouse architecture if justified
+* replace portions of the existing frontend architecture
+* replace weak backend modules
+* redesign data models
+* migrate APIs
+* create compatibility layers
+* create new services
+* split services where there is a genuine architectural reason
+* keep the monolith where that is more operationally sensible
+
+Do not introduce complexity merely for prestige.
+
+**Use the best architecture for the actual requirements.**
+
+If a modular monolith is more appropriate than microservices, use a modular monolith.
+
+If independent workers are useful, create workers.
+
+If a service should remain inside the primary backend, keep it there.
+
+The principle is:
+
+**no artificial constraints, but also no architecture astronautics.**
+
+---
+
+# 3. ABSOLUTE QUALITY BAR
+
+Everything you implement must be held to a production engineering standard.
+
+Reject:
+
+* fake APIs
+* placeholder APIs
+* fake integrations
+* pseudo-databases
+* hardcoded production values
+* mock business logic pretending to be real functionality
+* demo-only flows
+* fake AI responses
+* meaningless random data presented as intelligence
+* TODO comments standing in for required functionality
+* “coming soon”
+* dead buttons
+* decorative controls that do nothing
+* incomplete workflows presented as complete
+* security theater
+* duplicated business logic
+* unexplained magic constants
+* silent error swallowing
+* insecure defaults
+* client-side authorization as the only authorization layer
+* secrets embedded in frontend code
+* exposing privileged API credentials
+* predictable identifiers where inappropriate
+* unvalidated user input
+* unbounded queries
+* unbounded uploads
+* unbounded AI requests
+* unnecessary N+1 queries
+* accidental data leakage
+* weak tenancy boundaries
+* fragile state synchronization
+* inaccessible UI
+* broken mobile layouts
+* low-quality generated copy embedded throughout the application
+* temporary workarounds that are silently treated as permanent solutions
+
+Every new capability must have a real implementation path.
+
+---
+
+# 4. FIRST PHASE: PERFORM A DEEP REPOSITORY AUDIT
+
+Before deciding what should change, thoroughly inspect the repository.
+
+Do not rely on filenames alone.
+
+Trace execution.
+
+Understand the actual system.
+
+Inspect at minimum:
+
+## Frontend
+
+* application entry point
+* HTML shell
+* routing
+* navigation
+* state handling
+* API calls
+* authentication state
+* token handling
+* authorization behavior
+* components
+* views
+* modals
+* forms
+* validation
+* property cards
+* property detail experiences
+* dashboards
+* calculators
+* AI chat
+* favorites
+* reviews
+* viewing workflows
+* contact workflows
+* maps
+* image rendering
+* responsive behavior
+* loading states
+* error states
+* empty states
+* caching
+* service worker if present
+* PWA configuration if present
+* accessibility
+* semantic HTML
+* SEO
+* metadata
+* structured data
+* keyboard navigation
+* frontend security
+* bundle size
+* network behavior
+* memory behavior
+* API error handling
+* race conditions
+* optimistic updates
+* optimistic update rollback
+
+## Backend
+
+Inspect:
+
+* Express application setup
+* middleware
+* controllers
+* services
+* routes
+* validation
+* authentication
+* authorization
+* JWT handling
+* token lifecycle
+* refresh strategy
+* password handling
+* sessions
+* role enforcement
+* error handling
+* rate limiting
+* security headers
+* CORS
+* CSRF considerations
+* request parsing
+* file uploads
+* API response structures
+* logging
+* configuration
+* environment handling
+* database connections
+* Prisma usage
+* transactions
+* background work
+* AI gateway
+* external service calls
+* webhooks
+* scheduled work
+* shutdown behavior
+* health checks
+
+## Database
+
+Inspect:
+
+* Prisma schema
+* migrations
+* indexes
+* relations
+* constraints
+* nullable fields
+* enums
+* uniqueness
+* cascading behavior
+* soft deletion
+* auditability
+* timestamps
+* transactional integrity
+* geospatial modeling
+* property taxonomy
+* media relationships
+* user data
+* roles
+* organizations
+* reviews
+* viewings
+* contact requests
+* favorites
+* AI conversations
+* analytics
+* notification data
+* billing possibilities
+* tenancy boundaries
+
+Identify missing indexes and query inefficiencies.
+
+Identify fields that should have stronger constraints.
+
+Identify data that should be normalized.
+
+Identify data that should be denormalized.
+
+Identify domains that should be separated.
+
+Identify opportunities for PostgreSQL capabilities such as:
+
+* full-text search
+* trigram search
+* JSONB
+* generated columns
+* partial indexes
+* composite indexes
+* PostgreSQL extensions
+* pgvector
+* PostGIS where appropriate
+
+## Infrastructure
+
+Inspect:
+
+* package manifests
+* lockfiles
+* environment configuration
+* Docker configuration
+* deployment configuration
+* CI/CD
+* scripts
+* database migration scripts
+* seed scripts
+* testing configuration
+* linting
+* formatting
+* build process
+* production start process
+* health checks
+* deployment assumptions
+
+## AI
+
+Audit:
+
+* Gemini gateway
+* prompt construction
+* conversation persistence
+* model invocation
+* tool/function calling
+* context handling
+* token economics
+* rate limits
+* error handling
+* hallucination controls
+* prompt injection risk
+* sensitive-data handling
+* AI observability
+* AI costs
+* streaming
+* cancellation
+* structured outputs
+* tool authorization
+
+Determine whether the AI layer should evolve into a more formal orchestration architecture.
+
+---
+
+# 5. CREATE A BASELINE BEFORE REBUILDING
+
+Establish a concrete technical baseline.
+
+Determine:
+
+* what starts successfully
+* what builds successfully
+* what tests pass
+* what tests fail
+* what migrations work
+* what endpoints work
+* what frontend routes work
+* which workflows are broken
+* which integrations are missing
+* what environment variables are required
+* what functionality is merely superficial
+* what security weaknesses exist
+* what performance issues exist
+* what data-model limitations exist
+
+Then classify findings by:
+
+* critical
+* high
+* medium
+* low
+* architectural opportunity
+
+Also classify them by domain:
+
+* frontend
+* backend
+* database
+* security
+* AI
+* search
+* media
+* notifications
+* analytics
+* CRM
+* collaboration
+* billing
+* mobile/PWA
+* DevOps
+* accessibility
+* SEO
+* internationalization
+* observability
+* testing
+
+---
+
+# 6. PRODUCE A REAL TRANSFORMATION ROADMAP
+
+After the audit, create a clear roadmap.
+
+You may organize the roadmap into phases, but phases are an organizational mechanism rather than an excuse to avoid implementation.
+
+A useful roadmap might include concepts such as:
+
+### Foundation
+
+* architectural cleanup
+* schema improvements
+* security
+* validation
+* observability
+* testing
+* configuration
+* API contracts
+
+### Intelligence
+
+* semantic search
+* recommendation engine
+* AI agents
+* property intelligence
+* valuation
+* market analysis
+* AI media analysis
+
+### Engagement
+
+* notifications
+* real-time communications
+* live viewing
+* collaboration
+* messaging
+
+### Operations
+
+* CRM
+* lead management
+* agent workflows
+* automation
+* analytics
+
+### Platform
+
+* multi-tenancy
+* subscriptions
+* billing
+* white-label
+* organization administration
+
+### Experience
+
+* PWA
+* offline functionality
+* accessibility
+* internationalization
+* mobile optimization
+* premium UX
+
+### Scale
+
+* caching
+* queues
+* workers
+* observability
+* CI/CD
+* performance
+* resilience
+
+But reorganize these intelligently after inspecting the repository.
+
+---
+
+# 7. REIMAGINE ATCONIZ AS A REAL-ESTATE INTELLIGENCE PLATFORM
+
+Do not allow Atconiz to remain merely:
+
+“a property catalog with AI chat.”
+
+Expand the product concept dramatically.
+
+The platform should become a unified system for:
+
+**Discover → Understand → Compare → Evaluate → Collaborate → Decide → Act → Manage**
+
+The system should support:
+
+* home buyers
+* renters
+* property investors
+* property owners
+* real-estate agents
+* brokerages
+* administrators
+* enterprise organizations
+* potentially developers and property managers
+
+Design domain boundaries intelligently.
+
+---
+
+# 8. ADVANCED AI PLATFORM
+
+Transform the current AI gateway into a serious AI subsystem.
+
+Do not simply add another chatbot.
+
+Build an AI architecture capable of supporting specialized agents and tools.
+
+Potential AI roles include:
+
+### Property Intelligence Agent
+
+Can analyze:
+
+* price
+* location
+* amenities
+* neighborhood
+* property attributes
+* comparable listings
+* market conditions
+* historical information available to the platform
+* risks
+* strengths
+* weaknesses
+* likely buyer profiles
+
+### Search Agent
+
+Converts natural language into structured search intent.
+
+Examples:
+
+“Show me modern three-bedroom properties near good schools under ₹2 crore with a large balcony.”
+
+The system should translate this into structured search criteria and execute the actual search.
+
+### Valuation Agent
+
+Produce explainable estimates from available data.
+
+Potential inputs:
+
+* comparable properties
+* location
+* property type
+* floor
+* size
+* bedrooms
+* bathrooms
+* amenities
+* age
+* condition
+* neighborhood signals
+* historical listing data
+* market trends
+
+Do not represent speculative estimates as guaranteed financial truth.
+
+Clearly distinguish:
+
+* actual data
+* model-derived estimates
+* assumptions
+* confidence
+* missing inputs
+
+### Market Intelligence Agent
+
+Analyze available platform data to provide:
+
+* price trends
+* inventory trends
+* demand trends
+* neighborhood comparisons
+* rental yield estimates
+* absorption indicators
+* listing velocity
+* time-on-market indicators
+* supply/demand changes
+
+### Recommendation Agent
+
+Create personalized recommendations based on actual user behavior and explicit preferences.
+
+Support:
+
+* saved properties
+* viewed properties
+* searches
+* favorites
+* rejected properties
+* budgets
+* preferred locations
+* property types
+* amenities
+* lifestyle preferences
+
+Avoid creepy or opaque personalization.
+
+Give users control over personalization.
+
+### Conversation Agent
+
+Maintain useful, persistent context.
+
+Support:
+
+* streaming responses
+* tool calls
+* structured property references
+* saved searches
+* property comparisons
+* recommendations
+* appointment workflows
+* follow-up actions
+
+### Agentic Orchestrator
+
+Where appropriate, introduce an orchestrator capable of routing tasks between specialized capabilities.
+
+For example:
+
+User request:
+
+“Find me five properties for my family, compare them, estimate the monthly financing cost, identify the three most convenient for commuting, and arrange viewings for the top two.”
+
+The platform should be architecturally capable of:
+
+1. understanding the request
+2. searching inventory
+3. collecting relevant property data
+4. comparing candidates
+5. running calculators
+6. applying user constraints
+7. producing structured results
+8. suggesting next actions
+9. initiating viewing workflows with user confirmation
+
+Do not create autonomous side effects without appropriate authorization and confirmation.
+
+---
+
+# 9. AI IMAGE INTELLIGENCE
+
+Build a serious property-media intelligence pipeline.
+
+Support, where the chosen providers permit it:
+
+* image classification
+* room detection
+* image quality analysis
+* object detection
+* image tagging
+* duplicate detection
+* blurry-image detection
+* exposure analysis
+* composition analysis
+* image enhancement
+* cropping recommendations
+* thumbnail generation
+* responsive derivatives
+* metadata extraction
+* room categorization
+* automatic captions
+* accessibility alt-text generation
+* suspicious or inappropriate media detection
+
+Create a robust media pipeline rather than processing everything synchronously inside HTTP requests.
+
+Use workers where appropriate.
+
+Store original media separately from derivatives.
+
+Track processing state.
+
+Support retries.
+
+Support idempotency.
+
+Do not destroy originals.
+
+---
+
+# 10. PROPERTY VALUATION ENGINE
+
+Build an extensible valuation subsystem.
+
+Do not pretend an LLM alone is a reliable valuation engine.
+
+Create a layered architecture that can support:
+
+* deterministic calculations
+* comparable-property analysis
+* statistical models
+* machine-learning models
+* configurable heuristics
+* LLM-assisted explanation
+* external data providers when available
+* uncertainty ranges
+
+Return structured valuation output such as:
+
+* estimated value
+* low/high range
+* confidence indicator
+* valuation date
+* comparable properties
+* major positive factors
+* major negative factors
+* assumptions
+* data freshness
+* model/version metadata
+
+Architect it so actual trained models or external valuation providers can later be plugged in without redesigning the whole application.
+
+---
+
+# 11. ADVANCED SEARCH
+
+Turn property search into a major differentiating system.
+
+Support:
+
+* keyword search
+* structured filtering
+* price range
+* area
+* bedrooms
+* bathrooms
+* property type
+* amenities
+* floor
+* age
+* furnishing status
+* availability
+* status
+* location
+* radius
+* polygon/viewport search
+* commute-related filters when possible
+* proximity
+* neighborhood
+* developer
+* agent
+* investment characteristics
+
+Add semantic search.
+
+Support natural-language queries.
+
+Use:
+
+* PostgreSQL full-text search
+* trigram matching
+* vector embeddings
+* pgvector or dedicated vector infrastructure where appropriate
+* hybrid ranking
+
+Build an explainable ranking pipeline.
+
+Potential ranking signals:
+
+* textual relevance
+* semantic relevance
+* location relevance
+* user preferences
+* price fit
+* property fit
+* freshness
+* quality
+* popularity
+* personalization
+
+Avoid opaque ranking that cannot be debugged.
+
+Build ranking instrumentation.
+
+---
+
+# 12. MAP-FIRST PROPERTY DISCOVERY
+
+Create an advanced map experience.
+
+Support:
+
+* clustered markers
+* viewport-aware searching
+* property preview cards
+* synchronized list/map state
+* polygon search if appropriate
+* neighborhood overlays
+* price layers
+* heatmaps
+* commute insights
+* selected-property highlighting
+* desktop and mobile interaction
+* deep links
+
+Avoid flooding the browser with thousands of DOM markers.
+
+Use clustering and efficient rendering.
+
+---
+
+# 13. REAL-TIME COLLABORATION
+
+Introduce real-time capabilities where useful.
+
+Potential features:
+
+* live viewing sessions
+* live property walkthroughs
+* collaborative property comparison
+* shared shortlists
+* family/partner collaboration
+* presence indicators
+* real-time comments
+* agent/client conversation synchronization
+* viewing status updates
+* appointment updates
+* live offer workflow status
+* real-time notifications
+
+Choose appropriate technologies:
+
+* WebSockets
+* SSE
+* WebRTC
+* TURN/STUN infrastructure
+* or provider-backed communication infrastructure
+
+Do not force real-time architecture into areas that do not benefit from it.
+
+---
+
+# 14. LIVE VIEWINGS
+
+Create a complete viewing workflow.
+
+Potential lifecycle:
+
+* request viewing
+* propose times
+* agent approval
+* calendar synchronization
+* confirmation
+* reminders
+* live session
+* property walkthrough
+* notes
+* questions
+* post-viewing feedback
+* follow-up
+* conversion tracking
+
+Support virtual and physical viewing types.
+
+Build reliable scheduling logic.
+
+Account for time zones.
+
+Prevent double booking.
+
+Model appointment states explicitly.
+
+---
+
+# 15. FULL MEDIA PLATFORM
+
+Wire object storage properly.
+
+Support an abstraction that can target providers such as:
+
+* Amazon S3
+* Cloudflare R2
+* Cloudinary
+* equivalent S3-compatible storage
+
+Do not hardcode the business logic to one vendor.
+
+Create storage interfaces for:
+
+* upload
+* multipart upload
+* signed URLs
+* download
+* deletion
+* metadata
+* derivatives
+* access control
+
+Use secure upload flows.
+
+Do not proxy huge media files unnecessarily through the application server.
+
+Support:
+
+* image galleries
+* videos
+* virtual tours
+* floor plans
+* brochures
+* documents
+* thumbnails
+* responsive variants
+
+Build media lifecycle management.
+
+---
+
+# 16. NOTIFICATION PLATFORM
+
+Create a proper notification abstraction.
+
+Support:
+
+### In-app
+
+* notifications
+* unread counts
+* notification center
+* preferences
+* categories
+
+### Email
+
+Integrate through a provider abstraction.
+
+Potential providers:
+
+* Resend
+* SendGrid
+* Postmark
+* SES
+* equivalent providers
+
+### Push
+
+Support:
+
+* web push
+* PWA notifications
+* device registration
+* subscription management
+
+Potential events:
+
+* saved search match
+* price change
+* property availability
+* viewing confirmation
+* viewing reminder
+* agent reply
+* new message
+* review activity
+* account security event
+* subscription event
+* billing event
+
+Create:
+
+* notification templates
+* queues
+* retries
+* idempotency
+* delivery status
+* failure handling
+* preferences
+* unsubscribe mechanisms where required
+
+Never send important notifications synchronously from latency-sensitive request paths when background processing is more appropriate.
+
+---
+
+# 17. AGENT CRM
+
+Build a real agent workspace.
+
+Include:
+
+* lead inbox
+* lead profiles
+* lead sources
+* lead lifecycle
+* lead status
+* pipeline stages
+* follow-up tasks
+* notes
+* reminders
+* contact history
+* viewing history
+* saved properties
+* recommended properties
+* communication history
+* assignment
+* team routing
+* performance metrics
+* lead scoring
+* automation
+* bulk operations
+* exports
+
+Support agent-level permissions.
+
+Add proper audit trails.
+
+---
+
+# 18. LEAD INTELLIGENCE
+
+Create a scoring architecture based on real signals.
+
+Potential signals:
+
+* property views
+* repeat sessions
+* favorites
+* inquiries
+* viewing requests
+* responses
+* budget compatibility
+* search activity
+* engagement recency
+
+Provide explainable scoring.
+
+Do not expose sensitive or inappropriate inferences.
+
+Allow admins to configure scoring strategies.
+
+---
+
+# 19. ANALYTICS & BUSINESS INTELLIGENCE
+
+Create a serious analytics system.
+
+For users:
+
+* saved search analytics
+* viewed-property history
+* spending/budget analytics
+* preference insights
+
+For agents:
+
+* leads
+* conversion funnel
+* viewings
+* response times
+* inventory performance
+* listing engagement
+* lead sources
+* pipeline
+* revenue-related metrics where applicable
+
+For admins:
+
+* users
+* agents
+* inventory
+* listings
+* inquiries
+* viewings
+* conversion
+* search demand
+* popular locations
+* popular amenities
+* engagement
+* retention
+* notification delivery
+* AI usage
+* AI costs if measurable
+* system health
+
+Use proper event tracking.
+
+Do not fabricate analytics.
+
+Track events through an intentional event taxonomy.
+
+Consider an event abstraction so analytics can eventually be moved to a warehouse without rewriting business logic.
+
+---
+
+# 20. PROPERTY PERFORMANCE INTELLIGENCE
+
+For each property, consider displaying:
+
+* views
+* unique visitors
+* favorites
+* inquiries
+* viewing requests
+* conversion indicators
+* engagement trend
+* media interaction
+* search impressions when available
+* freshness
+* comparable properties
+* pricing context
+
+For agents, show actionable insights such as:
+
+* listing underperformance
+* unusually high engagement
+* high inquiry but low conversion
+* recurring questions
+* price sensitivity
+
+All such insights must be derived from actual measurable data.
+
+---
+
+# 21. PERSONALIZATION
+
+Build a durable personalization architecture.
+
+Potential features:
+
+* saved searches
+* saved filter presets
+* favorite neighborhoods
+* preferred property types
+* budget preferences
+* amenity preferences
+* personalized discovery feed
+* recommendation explanations
+* recently viewed
+* continue exploring
+* similar properties
+* “because you liked X” relationships
+* notification customization
+
+Do not make the system impossible to understand or control.
+
+Users should have meaningful privacy and personalization controls.
+
+---
+
+# 22. MULTI-TENANCY
+
+Architect the platform for multi-tenant operation.
+
+Potential tenants:
+
+* independent agencies
+* brokerages
+* developers
+* property managers
+* enterprise organizations
+
+Support:
+
+* organizations
+* memberships
+* invitations
+* roles
+* permissions
+* tenant isolation
+* organization branding
+* organization configuration
+* organization-level settings
+* organization-level analytics
+* organization-level billing
+* organization-level media
+* tenant-scoped API behavior
+
+Every tenant-sensitive query must enforce tenant boundaries server-side.
+
+Do not rely on frontend filtering for isolation.
+
+Consider row-level security or equivalent safeguards where appropriate.
+
+---
+
+# 23. WHITE-LABEL CAPABILITY
+
+Create architecture for configurable branding:
+
+* logo
+* colors
+* typography choices where practical
+* organization name
+* domain/subdomain
+* email identity
+* notification branding
+* organization-specific content
+* custom property data
+* feature flags
+
+Keep Atconiz’s own luxury design identity intact.
+
+---
+
+# 24. PAYMENT & SUBSCRIPTION LAYER
+
+Create a proper monetization architecture.
+
+Potential plans:
+
+* consumer premium
+* agent
+* professional
+* brokerage
+* enterprise
+
+Support concepts such as:
+
+* plans
+* subscriptions
+* entitlements
+* usage limits
+* trials
+* upgrades
+* downgrades
+* cancellations
+* invoices
+* payment events
+* webhook reconciliation
+* failed payment handling
+
+Use a payment-provider abstraction.
+
+Stripe is a reasonable candidate where appropriate.
+
+Never trust client-side payment state.
+
+Always validate webhook signatures.
+
+Make webhook processing idempotent.
+
+Separate:
+
+* subscription state
+* entitlement state
+* payment state
+
+Do not hardcode commercial rules throughout random controllers.
+
+---
+
+# 25. SECURITY HARDENING
+
+Treat security as a first-class subsystem.
+
+Audit and improve:
+
+* JWT lifecycle
+* refresh-token architecture
+* token revocation
+* password security
+* credential storage
+* MFA
+* passkeys/WebAuthn where appropriate
+* authorization
+* role boundaries
+* organization boundaries
+* object-level authorization
+* IDOR prevention
+* input validation
+* output encoding
+* XSS
+* CSRF
+* CORS
+* SQL injection
+* SSRF
+* path traversal
+* file upload attacks
+* malicious MIME types
+* oversized uploads
+* prototype pollution
+* open redirects
+* request smuggling considerations
+* dependency vulnerabilities
+* secret exposure
+* logging of sensitive values
+* AI prompt injection
+* tool authorization
+* abuse of AI endpoints
+* brute-force protection
+* account enumeration
+* API abuse
+* webhook security
+* rate limiting
+* replay prevention
+* sensitive-data handling
+
+Introduce:
+
+* Redis-backed rate limiting
+* structured security logging
+* audit trails
+* security event records
+* appropriate security headers
+* robust validation
+* request IDs
+* correlation IDs
+* abuse controls
+
+Use secure defaults.
+
+---
+
+# 26. AI SECURITY
+
+Treat every AI interaction as potentially adversarial.
+
+Defend against:
+
+* prompt injection
+* instruction hijacking
+* malicious property descriptions
+* malicious uploaded documents
+* malicious image content
+* data exfiltration
+* tool abuse
+* unauthorized action execution
+* privilege escalation through AI
+* cross-user context leakage
+* cross-tenant context leakage
+
+Never allow an AI model to bypass ordinary authorization.
+
+The AI must operate as an application component, not as an authority above the application.
+
+Every tool action should have explicit permission checks.
+
+Separate:
+
+* user content
+* system instructions
+* tool definitions
+* privileged application context
+
+Do not expose secrets to the model.
+
+---
+
+# 27. OBSERVABILITY
+
+Build real observability.
+
+Support:
+
+* structured logs
+* request IDs
+* trace IDs
+* metrics
+* latency metrics
+* error metrics
+* database metrics
+* queue metrics
+* notification metrics
+* AI metrics
+* storage metrics
+* business events
+* audit events
+
+Consider OpenTelemetry.
+
+Instrument:
+
+* HTTP
+* database
+* queues
+* external APIs
+* AI requests
+* storage
+* notification delivery
+
+Introduce health endpoints such as:
+
+* liveness
+* readiness
+* dependency health
+
+Make failure diagnosis possible.
+
+---
+
+# 28. CACHING & PERFORMANCE
+
+Aggressively optimize performance without sacrificing correctness.
+
+Consider:
+
+* Redis
+* HTTP caching
+* CDN
+* application caching
+* query caching
+* prepared statements where applicable
+* pagination
+* cursor pagination
+* selective field retrieval
+* database indexes
+* background jobs
+* asynchronous processing
+* image optimization
+* responsive media
+* lazy loading
+* code splitting where applicable
+* prefetching
+* request deduplication
+* client-side caching
+
+Audit for:
+
+* N+1 queries
+* duplicate API calls
+* oversized responses
+* serial requests that can be parallelized
+* expensive synchronous work
+* repeated AI requests
+* repeated database queries
+* blocking media processing
+
+Define performance budgets where useful.
+
+---
+
+# 29. OFFLINE / PWA / MOBILE-FIRST
+
+Keep desktop quality high while making the product genuinely excellent on mobile.
+
+Build toward:
+
+* installable PWA
+* service worker
+* offline shell
+* offline caching
+* resilient reconnect
+* network-aware UI
+* install prompts
+* push notifications
+* mobile navigation
+* touch-friendly controls
+* responsive maps
+* responsive dashboards
+* mobile-friendly property galleries
+* efficient media loading
+
+Where offline writes are supported, design synchronization carefully.
+
+Do not pretend offline support exists when writes cannot be safely synchronized.
+
+---
+
+# 30. ACCESSIBILITY
+
+Target serious accessibility compliance.
+
+Improve:
+
+* semantic HTML
+* headings
+* labels
+* form accessibility
+* keyboard navigation
+* focus management
+* dialogs
+* menus
+* tables
+* map alternatives
+* color contrast
+* reduced motion
+* screen-reader compatibility
+* ARIA only where necessary
+* error messaging
+* validation messaging
+* touch target sizing
+
+The luxury aesthetic must remain sophisticated without sacrificing accessibility.
+
+---
+
+# 31. SEO
+
+Make property discovery discoverable.
+
+Implement where appropriate:
+
+* canonical URLs
+* dynamic metadata
+* Open Graph
+* Twitter/X metadata where appropriate
+* structured data
+* property schema
+* breadcrumbs
+* clean URLs
+* crawlable public property content
+* sitemap
+* robots.txt
+* performant rendering strategy
+* proper status codes
+* social previews
+
+Do not sacrifice SPA architecture unnecessarily, but redesign public-page rendering where SEO demands it.
+
+---
+
+# 32. INTERNATIONALIZATION
+
+Design the application so internationalization is real rather than cosmetic.
+
+Support:
+
+* locale selection
+* translated UI strings
+* date formatting
+* number formatting
+* currency formatting
+* time zones
+* measurement units
+* right-to-left readiness
+* locale-aware validation
+
+Do not hardcode user-facing strings throughout business logic.
+
+Make translation architecture extensible.
+
+---
+
+# 33. REAL-ESTATE DOMAIN DEPTH
+
+Expand the property model where justified.
+
+Consider fields and modules for:
+
+* property type
+* subtype
+* status
+* ownership
+* tenure
+* construction year
+* renovation status
+* furnishing
+* floor
+* total floors
+* lot size
+* built-up area
+* carpet area
+* bedrooms
+* bathrooms
+* parking
+* amenities
+* orientation
+* views
+* utilities
+* energy information
+* accessibility
+* smart-home features
+* neighborhood
+* location
+* geo coordinates
+* transportation
+* schools
+* healthcare
+* shopping
+* nearby amenities
+* developer
+* project
+* tower/building
+* unit
+* documents
+* media
+* virtual tours
+
+Do not blindly add every possible field.
+
+Build a coherent domain model.
+
+---
+
+# 34. PROPERTY COMPARISON
+
+Create a rich property comparison engine.
+
+Support:
+
+* side-by-side comparison
+* financial comparison
+* area comparison
+* amenity comparison
+* location comparison
+* AI-assisted comparison
+* user-defined comparison criteria
+* saved comparison sets
+* shareable comparison links
+
+Make explanations evidence-based.
+
+---
+
+# 35. FINANCIAL INTELLIGENCE
+
+Expand the calculator ecosystem.
+
+Potential calculators:
+
+* mortgage/EMI
+* affordability
+* down payment
+* closing costs
+* total ownership cost
+* rent vs buy
+* rental yield
+* cap rate
+* cash-on-cash return
+* ROI scenarios
+* renovation budget
+* investment scenario analysis
+
+Clearly distinguish illustrative assumptions from actual financial advice.
+
+Build reusable calculation services instead of duplicating formulas across frontend screens.
+
+---
+
+# 36. AGENT AUTOMATION
+
+Add workflow automation.
+
+Potential automation examples:
+
+* new lead → assignment
+* lead inactive → reminder
+* viewing scheduled → reminders
+* property price changed → relevant users notified
+* new property matches saved search → notification
+* lead reaches threshold → priority flag
+* listing receives engagement spike → alert
+* viewing completed → follow-up task
+* review received → notification
+* document uploaded → processing job
+
+Create an automation architecture rather than hardcoding every automation separately.
+
+---
+
+# 37. WORK QUEUE ARCHITECTURE
+
+Introduce background processing for expensive or asynchronous workloads.
+
+Candidate jobs:
+
+* email
+* push
+* image processing
+* media transcoding
+* AI analysis
+* embedding generation
+* search indexing
+* recommendation updates
+* analytics aggregation
+* notifications
+* scheduled reminders
+* report generation
+* exports
+* data cleanup
+
+Use:
+
+* retries
+* exponential backoff
+* dead-letter handling
+* idempotency
+* job status
+* observability
+
+Do not allow duplicate processing to corrupt state.
+
+---
+
+# 38. API ARCHITECTURE
+
+Make the API professional and scalable.
+
+Implement:
+
+* consistent response shapes
+* consistent error format
+* request validation
+* schema validation
+* pagination
+* filtering
+* sorting
+* search
+* versioning where justified
+* idempotency where needed
+* rate limits
+* authentication
+* authorization
+* request IDs
+* OpenAPI
+* examples
+* generated client possibilities
+
+Create comprehensive OpenAPI documentation.
+
+Include:
+
+* authentication
+* endpoints
+* schemas
+* errors
+* pagination
+* examples
+* webhooks where applicable
+
+Do not document nonexistent functionality.
+
+Documentation must reflect the real implementation.
+
+---
+
+# 39. DATABASE ENGINEERING
+
+Treat PostgreSQL as a serious production database.
+
+Improve:
+
+* indexes
+* constraints
+* relations
+* transactions
+* query plans
+* uniqueness
+* data integrity
+* cascades
+* deletion strategies
+* auditability
+* timestamps
+* soft deletion where appropriate
+* tenant isolation
+
+Consider:
+
+* pgvector
+* PostGIS
+* full-text search
+* generated columns
+* JSONB where appropriate
+* partial indexes
+* composite indexes
+
+Avoid:
+
+* denormalization without justification
+* unbounded text fields without reason
+* overloaded JSON blobs for relational data
+* duplicated sources of truth
+
+Every migration must be safe and understandable.
+
+---
+
+# 40. AUDIT LOGGING
+
+Build an audit system.
+
+Track security-sensitive and business-critical events such as:
+
+* login
+* logout
+* password change
+* MFA changes
+* role change
+* organization membership changes
+* property creation
+* property modification
+* property deletion
+* media changes
+* viewing changes
+* CRM actions
+* billing actions
+* permission changes
+* API key operations
+* administrative actions
+
+Do not log secrets.
+
+Create appropriate retention considerations.
+
+---
+
+# 41. ADMIN PLATFORM
+
+Build a genuinely useful administration console.
+
+Provide:
+
+* user management
+* role management
+* organization management
+* property moderation
+* media moderation
+* reviews moderation
+* agent management
+* leads oversight
+* viewing oversight
+* notification operations
+* search/index status
+* AI usage
+* AI costs if measurable
+* queues
+* failed jobs
+* audit logs
+* system health
+* configuration
+* feature flags
+* billing overview
+* analytics
+
+Dangerous administrative actions should require suitable authorization and possibly confirmation/re-authentication.
+
+---
+
+# 42. FEATURE FLAGS
+
+Create a real feature-flag abstraction.
+
+Support:
+
+* environment flags
+* tenant flags
+* user flags where justified
+* percentage rollout if justified
+* staged rollout
+* emergency disablement
+
+Do not scatter environment checks throughout the application.
+
+---
+
+# 43. TESTING STRATEGY
+
+Build a comprehensive testing pyramid.
+
+Include as appropriate:
+
+### Unit tests
+
+* utility functions
+* business logic
+* calculations
+* authorization
+* validators
+* ranking
+* recommendation logic
+
+### Integration tests
+
+* API
+* database
+* authentication
+* authorization
+* queues
+* notifications
+* storage
+* AI gateway
+
+### End-to-end tests
+
+Critical user workflows.
+
+Examples:
+
+* signup
+* login
+* property search
+* property detail
+* favorite
+* review
+* viewing request
+* contact request
+* AI interaction
+* agent lead workflow
+* notification flow
+* admin workflow
+* billing workflow where implemented
+
+### Security tests
+
+Test:
+
+* unauthorized access
+* role escalation
+* IDOR
+* tenant isolation
+* injection
+* malformed input
+* upload abuse
+* rate limits
+
+Do not generate tests that merely assert mocks behave as expected.
+
+Test real application behavior.
+
+---
+
+# 44. CI/CD
+
+Create a professional delivery pipeline.
+
+The pipeline should include, where appropriate:
+
+* dependency installation
+* formatting
+* linting
+* type/static analysis where applicable
+* unit tests
+* integration tests
+* end-to-end tests
+* migration checks
+* security scans
+* dependency auditing
+* build validation
+* artifact creation
+* deployment checks
+
+Do not make CI green by disabling tests.
+
+Do not hide failures.
+
+---
+
+# 45. SEED DATA
+
+Replace simplistic seed data with realistic but clearly synthetic development data.
+
+Create enough records to exercise:
+
+* properties
+* agents
+* users
+* organizations
+* neighborhoods
+* media
+* reviews
+* favorites
+* viewings
+* leads
+* notifications
+* AI conversations
+* analytics events
+
+Seed data should be structurally realistic without falsely representing real people or real transactions.
+
+Make seeding deterministic when practical.
+
+---
+
+# 46. UX / UI TRANSFORMATION
+
+Preserve the existing luxury real-estate visual identity.
+
+Do not turn Atconiz into a generic SaaS dashboard.
+
+The design should communicate:
+
+* premium
+* sophisticated
+* modern
+* trustworthy
+* editorial
+* spatial
+* elegant
+* confident
+* high-end
+* technologically advanced
+
+But improve the entire interaction model.
+
+Introduce, where appropriate:
+
+* cinematic property galleries
+* refined transitions
+* excellent typography hierarchy
+* contextual actions
+* improved search
+* immersive property pages
+* map/list split views
+* intelligent dashboards
+* personalized discovery
+* elegant data visualizations
+* rich but restrained motion
+* advanced filters
+* command interfaces
+* AI-native interactions
+* mobile-first controls
+
+Do not use gratuitous animation.
+
+Luxury UI does not mean visual clutter.
+
+Performance comes first.
+
+---
+
+# 47. PROPERTY DETAIL EXPERIENCE
+
+Make the property detail screen a flagship experience.
+
+Potential areas:
+
+* immersive gallery
+* video
+* virtual tour
+* floor plans
+* key facts
+* location
+* map
+* amenities
+* neighborhood intelligence
+* comparable properties
+* valuation insights
+* financial calculations
+* AI summary
+* AI Q&A
+* viewing CTA
+* contact agent
+* save/share
+* compare
+* similar properties
+* price-change history where real data exists
+* engagement insights for agents
+
+The page should feel significantly more advanced than conventional property listing sites.
+
+---
+
+# 48. AI-NATIVE SEARCH EXPERIENCE
+
+Consider adding a powerful unified search surface.
+
+Users should be able to type requests like:
+
+“Find modern homes for a family with two children, near good schools, preferably with a garden, under my budget, and show me the three with the strongest long-term value signals.”
+
+The system should:
+
+* interpret intent
+* identify structured requirements
+* ask for missing information only when necessary
+* query actual inventory
+* explain results
+* provide filters
+* allow iterative refinement
+* save searches
+* personalize appropriately
+
+Never fabricate inventory.
+
+---
+
+# 49. DOCUMENT INTELLIGENCE
+
+Where useful, add document processing.
+
+Potential property documents:
+
+* brochures
+* floor plans
+* contracts
+* disclosures
+* inspection documents
+* property reports
+* permits
+
+Build a secure document pipeline with:
+
+* object storage
+* metadata
+* access control
+* optional OCR
+* document classification
+* extraction
+* summarization
+* search
+* audit trail
+
+Treat documents as sensitive.
+
+Do not expose private documents through predictable URLs.
+
+---
+
+# 50. COMMUNICATION CENTER
+
+Create a unified communication layer.
+
+Potential channels:
+
+* in-app messaging
+* email
+* push
+* viewing communication
+* agent-client conversations
+
+Store communication history appropriately.
+
+Support:
+
+* read state
+* delivery state
+* attachments where safe
+* search
+* conversation metadata
+* notification preferences
+* auditability
+
+Do not expose sensitive content improperly across tenants.
+
+---
+
+# 51. API-FIRST PRODUCT THINKING
+
+Design modules so future clients can consume them.
+
+Potential future clients:
+
+* web
+* mobile app
+* partner integrations
+* agent dashboards
+* enterprise systems
+* public API consumers
+
+Do not bury core business logic inside frontend code.
+
+Business logic belongs in server-side services/domain modules where appropriate.
+
+---
+
+# 52. DATA PROVIDER ABSTRACTIONS
+
+Where external services may vary, create provider interfaces.
+
+Examples:
+
+* AI provider
+* storage provider
+* email provider
+* push provider
+* payment provider
+* maps provider
+* search provider
+* analytics provider
+* calendar provider
+
+This should allow replacement without rewriting the entire product.
+
+Do not create useless abstraction layers for every trivial function.
+
+Abstract genuine external boundaries.
+
+---
+
+# 53. RESILIENCE
+
+Design for failures.
+
+External services will fail.
+
+Networks fail.
+
+AI providers fail.
+
+Payments fail.
+
+Email fails.
+
+Storage can fail.
+
+Search indexes can drift.
+
+Jobs can be duplicated.
+
+Users can refresh at arbitrary points.
+
+Design accordingly.
+
+Use:
+
+* retries
+* timeouts
+* circuit breakers where useful
+* fallbacks
+* idempotency
+* transactional outbox patterns where appropriate
+* reconciliation jobs
+* durable state transitions
+
+Never leave business-critical workflows dependent on an unbounded synchronous external request.
+
+---
+
+# 54. DATA CONSISTENCY
+
+Explicitly identify which workflows require:
+
+* strong consistency
+* eventual consistency
+
+Examples:
+
+* payment entitlement
+* authorization
+* tenancy
+* property ownership
+
+versus:
+
+* search indexing
+* analytics aggregation
+* recommendation updates
+* notification fanout
+
+Do not pretend distributed systems are magically strongly consistent.
+
+Model state transitions explicitly.
+
+---
+
+# 55. PRIVACY
+
+Treat user and property information responsibly.
+
+Build:
+
+* privacy settings
+* data minimization
+* export workflows where required
+* deletion workflows where required
+* retention rules
+* consent tracking where applicable
+* auditability
+
+Do not collect data merely because it might be useful someday.
+
+---
+
+# 56. CONFIGURATION & ENVIRONMENT MANAGEMENT
+
+Create a clean configuration architecture.
+
+All secrets and environment-specific configuration must remain server-side.
+
+Support clear distinctions between:
+
+* development
+* test
+* staging
+* production
+
+Validate required environment variables at startup.
+
+Fail clearly when required configuration is missing.
+
+Do not silently fall back to insecure production defaults.
+
+---
+
+# 57. ERROR HANDLING
+
+Create a consistent error model.
+
+Handle:
+
+* validation errors
+* authentication errors
+* authorization errors
+* not found
+* conflict
+* rate limits
+* dependency failures
+* AI failures
+* database failures
+* storage failures
+* webhook failures
+
+Do not expose:
+
+* stack traces
+* secrets
+* internal SQL
+* provider credentials
+* sensitive implementation details
+
+in production responses.
+
+Log useful internal diagnostics with correlation IDs.
+
+---
+
+# 58. API RATE LIMITING
+
+Implement a serious rate-limiting strategy.
+
+Different endpoints should have different policies.
+
+Examples:
+
+* authentication
+* password reset
+* AI
+* search
+* uploads
+* contact requests
+* public property retrieval
+* administrative APIs
+
+Use Redis when appropriate.
+
+Consider:
+
+* IP-based limits
+* account-based limits
+* endpoint-specific limits
+* tenant limits
+* burst limits
+* cost-aware limits
+
+---
+
+# 59. AI COST CONTROL
+
+AI features can become extremely expensive.
+
+Build mechanisms such as:
+
+* token accounting
+* request budgets
+* model routing
+* caching
+* response reuse
+* summarization
+* context limits
+* per-user quotas
+* per-tenant quotas
+* admin controls
+* usage dashboards
+
+Where appropriate, use smaller/cheaper models for simple tasks and stronger models for difficult tasks.
+
+Do not reduce AI quality blindly.
+
+Optimize intelligently.
+
+---
+
+# 60. AI EVALUATION
+
+Create an architecture for AI quality measurement.
+
+Track:
+
+* latency
+* failures
+* cost
+* tool-call success
+* hallucination indicators where measurable
+* structured-output validity
+* user feedback
+* task completion
+
+Build evaluation fixtures for critical AI behavior.
+
+Do not assume model output is correct simply because it is fluent.
+
+---
+
+# 61. SEARCH INDEXING PIPELINE
+
+If a dedicated search/vector system is introduced, build robust indexing.
+
+Property lifecycle:
+
+**create/update → event → indexing job → search/vector index → ready state**
+
+Handle:
+
+* retries
+* stale indexes
+* deletion
+* reindexing
+* backfills
+* schema changes
+* embeddings versioning
+
+Provide administrative visibility into index health.
+
+---
+
+# 62. VERSIONED AI AND DATA MODELS
+
+Track versions for:
+
+* prompts
+* model configurations
+* embeddings
+* ranking algorithms
+* valuation models
+* recommendation models
+* AI tool definitions
+
+This enables debugging and reproducibility.
+
+---
+
+# 63. BUSINESS LOGIC ARCHITECTURE
+
+Organize backend code around coherent domains.
+
+Potential domains:
+
+* identity
+* users
+* organizations
+* properties
+* search
+* media
+* favorites
+* reviews
+* viewings
+* CRM
+* messaging
+* notifications
+* AI
+* valuation
+* analytics
+* billing
+* administration
+* audit
+* configuration
+
+Do not blindly copy this list.
+
+Create boundaries based on the actual system.
+
+Avoid massive controllers containing all business logic.
+
+---
+
+# 64. FRONTEND ARCHITECTURE
+
+Even though the current application uses Vanilla JS, do not assume Vanilla JS must remain unchanged forever.
+
+You may retain it if it can support the target.
+
+You may introduce a more structured frontend architecture if needed.
+
+Possible direction:
+
+* modular components
+* shared UI primitives
+* service layer
+* state modules
+* route modules
+* domain modules
+* centralized API client
+* caching
+* event bus
+* accessibility utilities
+* design tokens
+
+You may introduce a framework or build tooling improvement only when there is a strong technical reason.
+
+Do not rewrite for fashion.
+
+---
+
+# 65. DESIGN SYSTEM
+
+Create a coherent design system.
+
+Define:
+
+* spacing
+* typography
+* colors
+* elevation
+* border radius
+* interaction states
+* cards
+* buttons
+* inputs
+* selects
+* dialogs
+* drawers
+* navigation
+* tabs
+* tables
+* badges
+* alerts
+* skeleton loaders
+* toasts
+* property tiles
+* statistics
+* chart containers
+
+Make the system consistent across all new modules.
+
+Preserve Atconiz's luxury personality.
+
+---
+
+# 66. RESPONSIVE QUALITY
+
+Test conceptual layouts at:
+
+* desktop
+* laptop
+* tablet
+* mobile
+
+Do not allow desktop-first assumptions to destroy mobile UX.
+
+Map interactions and large data tables require special mobile strategies.
+
+---
+
+# 67. PERFORMANCE BUDGETS
+
+Measure and improve:
+
+* initial page load
+* JavaScript execution
+* API latency
+* database latency
+* image loading
+* Largest Contentful Paint
+* Cumulative Layout Shift
+* Interaction to Next Paint
+* route transitions
+
+Do not claim performance improvements without measurable reasoning.
+
+---
+
+# 68. DOCUMENTATION
+
+Create excellent documentation.
+
+Include:
+
+* architecture overview
+* local development
+* environment setup
+* database setup
+* migrations
+* seed process
+* API documentation
+* AI architecture
+* deployment
+* infrastructure
+* operational runbooks
+* troubleshooting
+* security assumptions
+* testing
+* contributing
+* tenant architecture
+* notification architecture
+* storage architecture
+
+Documentation must remain synchronized with implementation.
+
+---
+
+# 69. DEVELOPMENT EXPERIENCE
+
+Improve:
+
+* npm scripts
+* setup automation
+* local dependencies
+* environment templates
+* developer diagnostics
+* seed commands
+* test commands
+* migration commands
+* linting
+* formatting
+* type checking where applicable
+* local object-storage options
+* local Redis options
+* local queue options
+
+A new engineer should be able to understand and launch the system efficiently.
+
+---
+
+# 70. DO NOT DESTROY WORKING FEATURES
+
+During transformation:
+
+* preserve legitimate existing functionality
+* migrate it rather than randomly deleting it
+* improve it when appropriate
+* maintain backward compatibility where valuable
+* introduce compatibility layers during transitions
+* update frontend and backend together when contracts change
+
+Do not break existing business behavior merely to make the code look cleaner.
+
+---
+
+# 71. DO NOT PRESERVE BAD ARCHITECTURE FOR SENTIMENTAL REASONS
+
+At the same time:
+
+Do not keep:
+
+* weak abstractions
+* insecure patterns
+* duplicated logic
+* brittle hacks
+* obsolete dependencies
+* unmaintainable files
+* dangerous defaults
+* fake implementations
+
+just because they already exist.
+
+The existing implementation is the starting point, not the ceiling.
+
+---
+
+# 72. IMPLEMENTATION PRIORITY
+
+When deciding what to implement first, optimize for:
+
+1. critical correctness
+2. security
+3. data integrity
+4. architectural foundations
+5. reliability
+6. user value
+7. operational value
+8. differentiation
+9. monetization potential
+10. polish
+
+However, do not use prioritization as an excuse to ignore ambitious functionality.
+
+The ultimate target remains a dramatically expanded Atconiz.
+
+---
+
+# 73. NEVER FAKE COMPLETENESS
+
+If an external provider requires credentials that are unavailable, implement:
+
+* the provider abstraction
+* environment variables
+* configuration validation
+* integration code
+* webhook handling
+* local development strategy
+* documentation
+
+Do not replace the provider with a fake success response.
+
+If a production integration cannot be exercised without credentials, clearly isolate the configuration dependency.
+
+Do not pretend it has been verified when it has not.
+
+---
+
+# 74. NEVER LEAVE DEAD UI
+
+Every newly visible button, tab, control, menu, card action, filter, dropdown, and navigation item must do something meaningful.
+
+No:
+
+* “Coming Soon”
+* “Under Construction”
+* fake metrics
+* decorative dashboards
+* fake AI recommendations
+* fake notifications
+* mock payment confirmations
+
+---
+
+# 75. NO MEANINGLESS REWRITES
+
+Do not rewrite the system simply to produce a different folder tree.
+
+Every architectural change should solve a real problem.
+
+Document major architectural changes and why they exist.
+
+---
+
+# 76. DO NOT OVERFIT TO THE CURRENT CODE
+
+Think about the product that Atconiz should become.
+
+If the current data model makes a future capability difficult, improve the data model.
+
+If the current frontend architecture blocks the product, improve the architecture.
+
+If a current dependency is insufficient, replace it.
+
+If a new service is justified, introduce it.
+
+---
+
+# 77. CONTINUE UNTIL THE SYSTEM IS COHERENT
+
+Do not stop after implementing one exciting feature.
+
+Every major feature should be integrated into:
+
+* database
+* backend
+* API
+* authorization
+* frontend
+* analytics
+* notifications where appropriate
+* auditing where appropriate
+* tests
+* documentation
+* observability
+* error handling
+
+A feature is not complete because one screen exists.
+
+---
+
+# 78. OUTPUT FORMAT
+
+After analyzing the repository, your response should be structured as follows.
+
+## SECTION A — EXECUTIVE DIAGNOSIS
+
+Explain:
+
+* current architecture
+* strongest existing elements
+* biggest weaknesses
+* highest-risk issues
+* architectural bottlenecks
+* most valuable opportunities
+
+Be specific.
+
+Reference actual files and modules when available.
+
+---
+
+## SECTION B — ARCHITECTURE TARGET
+
+Present the proposed future architecture.
+
+Include:
+
+* frontend
+* backend
+* database
+* cache
+* queue
+* workers
+* AI
+* search
+* vector infrastructure
+* media
+* notifications
+* observability
+* analytics
+* billing
+* multi-tenancy
+* CI/CD
+* deployment
+
+Use diagrams where useful.
+
+---
+
+## SECTION C — DOMAIN MODEL
+
+Present the target domain structure.
+
+Include important entities, relationships, states, and boundaries.
+
+Show important schema changes.
+
+---
+
+## SECTION D — ROADMAP
+
+Provide a high-signal implementation roadmap.
+
+Organize by logical dependency.
+
+Do not create artificial phases solely to avoid difficult work.
+
+---
+
+## SECTION E — IMPLEMENTATION
+
+Then actually implement as much as the environment supports.
+
+When editing the repository:
+
+* modify files directly
+* create new files where needed
+* remove obsolete files where justified
+* update dependencies
+* update schema
+* create migrations
+* update configuration
+* update scripts
+* create tests
+* update documentation
+* create infrastructure files
+* create CI/CD
+* create deployment assets
+
+Do not merely describe what should happen.
+
+---
+
+## SECTION F — DATABASE MIGRATIONS
+
+Show or create all necessary schema migrations.
+
+Ensure:
+
+* migration ordering is correct
+* indexes exist
+* constraints exist
+* relations are correct
+* data integrity is preserved
+
+---
+
+## SECTION G — API CONTRACT
+
+Document the actual implemented API.
+
+Include:
+
+* routes
+* methods
+* authentication
+* roles
+* request schema
+* response schema
+* errors
+* pagination
+* filtering
+* webhooks
+
+Generate OpenAPI when appropriate.
+
+---
+
+## SECTION H — SECURITY AUDIT
+
+Document vulnerabilities discovered and fixes implemented.
+
+Distinguish:
+
+* fixed
+* mitigated
+* requiring external configuration
+* requiring provider credentials
+
+Never claim something is fixed when it was only recommended.
+
+---
+
+## SECTION I — TESTING
+
+Provide:
+
+* tests added
+* test coverage areas
+* critical workflows
+* security tests
+* integration tests
+* E2E tests
+
+Run tests where tooling permits.
+
+Report actual results.
+
+---
+
+## SECTION J — OPERATIONS
+
+Document:
+
+* environment variables
+* local dependencies
+* Redis
+* queues
+* storage
+* email
+* push
+* AI
+* payments
+* search
+* observability
+* deployment
+* migration procedures
+* backup considerations
+* recovery procedures
+
+---
+
+## SECTION K — FINAL SYSTEM STATUS
+
+Give an honest final assessment.
+
+Clearly distinguish:
+
+* implemented and verified
+* implemented but dependent on external credentials/services
+* implemented but not executable in the current environment
+* remaining work
+
+Never represent conceptual code as verified production behavior.
+
+---
+
+# 79. CODE QUALITY REQUIREMENTS
+
+All code must be:
+
+* maintainable
+* modular
+* secure
+* testable
+* observable
+* documented
+* appropriately typed or validated
+* defensive at external boundaries
+* transactionally correct where necessary
+* free from obvious race conditions
+* free from obvious injection vulnerabilities
+
+Prefer clear abstractions over cleverness.
+
+Prefer explicit state machines for workflows with multiple states.
+
+Prefer domain services over giant route handlers.
+
+Prefer reusable utilities over duplicated logic.
+
+Prefer database constraints over application-only assumptions where appropriate.
+
+---
+
+# 80. DATA VALIDATION
+
+Validate all external input.
+
+Use strong schemas for:
+
+* query parameters
+* URL parameters
+* body payloads
+* headers where relevant
+* uploaded files
+* webhook payloads
+* AI structured outputs
+
+Reject malformed data early.
+
+Normalize where appropriate.
+
+Never trust frontend validation.
+
+---
+
+# 81. AUTHORIZATION MODEL
+
+Build authorization as a layered system.
+
+At minimum:
+
+* authentication
+* role authorization
+* resource ownership
+* organization membership
+* tenant isolation
+* privileged administrative actions
+
+Do not allow:
+
+USER → access AGENT resources merely because an ID is known.
+
+Do not allow:
+
+AGENT → access another tenant's private data.
+
+Do not allow:
+
+AI → perform privileged actions without application authorization.
+
+---
+
+# 82. SEARCH / AI / DATABASE CONSISTENCY
+
+Ensure that search, recommendations, and AI are grounded in actual application data.
+
+The model should not invent properties.
+
+AI property answers should reference real property identifiers.
+
+Recommendations should come from actual inventory.
+
+Valuation inputs should be explicit.
+
+Analytics should be based on actual tracked events.
+
+---
+
+# 83. EXPLAINABILITY
+
+Where algorithmic decisions influence users, provide useful explanations.
+
+Examples:
+
+* why this property was recommended
+* why a lead received a score
+* why a valuation range exists
+* what influenced ranking
+* what data is missing
+
+Do not reveal proprietary internals unnecessarily.
+
+But do not make the system an unexplained black box.
+
+---
+
+# 84. REAL DATA OVER DEMOS
+
+If Atconiz says:
+
+“12 properties matched”
+
+there must actually be 12 records matching the query.
+
+If it says:
+
+“Your viewing is confirmed”
+
+there must be a real viewing state in the database.
+
+If it says:
+
+“Email sent”
+
+there must be an actual notification delivery workflow or accurate pending/failure state.
+
+If AI says:
+
+“This property is 7% below comparable properties”
+
+that statement must be backed by actual data and a defensible calculation.
+
+Never manufacture certainty.
+
+---
+
+# 85. PRODUCT DIFFERENTIATION
+
+Do not stop at generic real-estate SaaS features.
+
+Look for genuinely differentiated concepts such as:
+
+* AI property copilot
+* intelligent property passport
+* neighborhood intelligence
+* explainable property matching
+* property investment simulator
+* live agent copilot
+* AI-assisted property marketing
+* intelligent listing quality scoring
+* automated media intelligence
+* dynamic buyer intent
+* collaborative property rooms
+* shared family decision spaces
+* intelligent viewing preparation
+* AI-generated property questions
+* post-viewing intelligence
+* property change monitoring
+* intelligent saved searches
+* natural-language real estate command center
+
+Invent stronger ideas where you see an opportunity.
+
+---
+
+# 86. COMMAND CENTER CONCEPT
+
+Consider making Atconiz feel like an intelligent operating system for real estate.
+
+A unified command interface could support actions such as:
+
+* search properties
+* compare properties
+* create saved searches
+* schedule viewings
+* contact agents
+* inspect analytics
+* summarize leads
+* analyze a property
+* generate listing materials
+* generate market reports
+* inspect CRM
+* inspect notifications
+* manage organization workflows
+
+Do this only where the architecture can support it safely.
+
+---
+
+# 87. AGENT COPILOT
+
+Build toward a genuine agent copilot.
+
+It could assist an agent with:
+
+* lead summaries
+* next-best action suggestions
+* property matching
+* follow-up drafting
+* listing analysis
+* client preference summaries
+* viewing preparation
+* market summaries
+* comparable properties
+* lead prioritization
+* schedule optimization
+
+Every action should respect permissions.
+
+Human confirmation should be required for consequential external actions unless a user explicitly configures trusted automation.
+
+---
+
+# 88. PROPERTY OWNER INTELLIGENCE
+
+Consider supporting owners with:
+
+* property performance
+* inquiry analytics
+* viewing analytics
+* market context
+* valuation monitoring
+* listing optimization suggestions
+* media quality
+* price-change analysis
+
+---
+
+# 89. INVESTOR EXPERIENCE
+
+Create advanced investor functionality where appropriate.
+
+Potential features:
+
+* rental yield
+* cap rate
+* projected cash flow
+* sensitivity analysis
+* financing scenarios
+* portfolio tracking
+* property comparison
+* investment watchlists
+* market trend dashboards
+
+Clearly label assumptions and estimates.
+
+---
+
+# 90. TRANSACTION READINESS
+
+Architect toward future transaction workflows.
+
+Even if full transactions cannot be integrated immediately, create clean boundaries for:
+
+* offers
+* documents
+* approvals
+* status tracking
+* parties
+* milestones
+* payments
+* communications
+
+Do not pretend a partial workflow is legally binding or complete.
+
+---
+
+# 91. BUILD SYSTEMS, NOT PATCHES
+
+Whenever the same class of problem appears more than once, consider creating an actual subsystem.
+
+For example:
+
+Three different notification hacks → build notification infrastructure.
+
+Three different upload implementations → build a media service.
+
+Three different permission checks → build authorization primitives.
+
+Three different AI callers → build AI orchestration.
+
+Three different async workarounds → build queue infrastructure.
+
+---
+
+# 92. NO “I CAN’T” AS AN ENGINEERING DEFAULT
+
+Do not respond with a conservative limitation simply because a task is large.
+
+For every difficult requirement:
+
+1. determine what is technically possible
+2. identify architectural dependencies
+3. implement the maximum responsible scope
+4. provide concrete code/configuration
+5. clearly identify genuine environmental blockers
+
+Do not replace implementation with vague advice.
+
+Do not say:
+
+“Consider adding…”
+
+when you can actually add it.
+
+Do not say:
+
+“You could use…”
+
+when the architecture can be designed concretely.
+
+Do not say:
+
+“This would require significant work…”
+
+as a substitute for doing the work.
+
+---
+
+# 93. NO FAKE CONFIDENCE EITHER
+
+Ambition does not mean pretending.
+
+Do not claim:
+
+* tests passed if they were not run
+* deployments succeeded if not deployed
+* payments work without credentials
+* emails delivered without a provider
+* external data is available when it is not
+* AI accuracy is guaranteed
+* valuation is authoritative
+
+Be exceptionally ambitious in implementation and exceptionally honest in reporting.
+
+---
+
+# 94. WHEN CHOOSING TECHNOLOGY
+
+Choose technology based on:
+
+* reliability
+* ecosystem maturity
+* security
+* operational complexity
+* performance
+* maintainability
+* licensing
+* deployment compatibility
+* future extensibility
+
+Do not introduce fashionable technology just because it is fashionable.
+
+At the same time, do not avoid excellent modern technology simply because the current project is older.
+
+---
+
+# 95. THIRD-PARTY DEPENDENCIES
+
+Audit dependencies.
+
+Remove:
+
+* abandoned libraries
+* redundant packages
+* unsafe packages
+* unnecessary packages
+
+Upgrade where safe.
+
+Pin appropriately.
+
+Document important external dependencies.
+
+Do not introduce massive dependency bloat.
+
+---
+
+# 96. SECRETS
+
+Never put:
+
+* Gemini API keys
+* database passwords
+* JWT secrets
+* storage credentials
+* payment secrets
+* email API keys
+* service credentials
+
+in frontend bundles or committed source.
+
+Use environment variables or proper secret infrastructure.
+
+---
+
+# 97. MIGRATION SAFETY
+
+When changing existing data:
+
+* preserve existing records
+* write explicit migrations
+* use backfills when needed
+* avoid destructive changes unless intentional
+* document destructive operations
+* consider rollback strategy
+* update seed scripts
+
+---
+
+# 98. DEPLOYMENT ARCHITECTURE
+
+Prepare the platform for professional deployment.
+
+Potential production topology:
+
+* CDN
+* frontend hosting
+* API
+* PostgreSQL
+* Redis
+* queue workers
+* object storage
+* search/vector layer
+* observability
+* scheduled jobs
+
+Do not require all components if unnecessary.
+
+Make the architecture explainable and operationally realistic.
+
+---
+
+# 99. LOCAL DEVELOPMENT
+
+Where new infrastructure is introduced, create a practical local-development story.
+
+Potentially use Docker Compose for:
+
+* PostgreSQL
+* Redis
+* object storage emulator
+* search
+* observability components
+
+Do not require developers to manually assemble an impossible stack.
+
+---
+
+# 100. FINAL PRINCIPLE
+
+The repository you receive is **Atconiz 4.0.0, not the finished product**.
+
+Treat it as the foundation.
+
+Your job is to push beyond conventional real-estate software and produce the strongest technically credible evolution of the system that the available environment makes possible.
+
+Be ambitious.
+
+Be systematic.
+
+Be technically rigorous.
+
+Be security-conscious.
+
+Be product-minded.
+
+Be brutally thorough.
+
+Preserve the luxury identity while substantially improving the experience.
+
+Do not confuse “more features” with “better architecture.”
+
+Do not confuse “AI” with randomly inserting an LLM into every screen.
+
+Do not confuse “enterprise” with unnecessary complexity.
+
+Do not confuse “production-ready” with merely having a build command.
+
+**Every major capability must have a real architecture behind it.**
+
+**Every important workflow must have real state.**
+
+**Every permission boundary must be enforced server-side.**
+
+**Every asynchronous workflow must be resilient.**
+
+**Every external integration must be properly abstracted and configured.**
+
+**Every AI capability must be grounded in application data and protected by authorization.**
+
+**Every visible UI element must correspond to real functionality.**
+
+**Every claim of completion must be honest.**
+
+---
+
+# EXECUTION ORDER
+
+Follow this order unless repository realities demand a better one:
+
+1. Inspect the entire repository.
+2. Establish the current runtime/build/test baseline.
+3. Map the current architecture.
+4. Identify security, correctness, and data-integrity risks.
+5. Identify architectural bottlenecks.
+6. Identify product gaps.
+7. Produce the transformation architecture.
+8. Produce the roadmap.
+9. Refactor foundational architecture where necessary.
+10. Upgrade database architecture.
+11. Upgrade authentication/authorization/security.
+12. Upgrade API architecture and OpenAPI.
+13. Introduce infrastructure primitives such as Redis, queues, storage, and observability where justified.
+14. Build advanced search.
+15. Build the AI platform.
+16. Build media intelligence.
+17. Build notifications.
+18. Build CRM and agent tooling.
+19. Build analytics.
+20. Build collaboration and real-time functionality.
+21. Build personalization.
+22. Build multi-tenancy.
+23. Build billing/subscriptions where appropriate.
+24. Upgrade PWA/mobile behavior.
+25. Upgrade accessibility, SEO, internationalization, and performance.
+26. Upgrade the luxury UI/UX.
+27. Add comprehensive tests.
+28. Add CI/CD.
+29. Update documentation.
+30. Run the available validation suite.
+31. Fix discovered issues.
+32. Perform a final architectural/security/product audit.
+33. Report exactly what was implemented, verified, blocked, or remains.
+
+Do not artificially stop after step 8.
+
+The roadmap exists to organize implementation, not replace it.
+
+---
+
+# FINAL COMMAND
+
+Take complete technical ownership of the Atconiz 4.0.0 transformation.
+
+**Go far beyond a conventional CRUD real-estate application.**
+
+Turn Atconiz into a coherent, deeply integrated, AI-native real-estate intelligence platform with world-class foundations.
+
+Use the existing product as the starting point.
+
+Do not be timid.
+
+Do not artificially constrain scope.
+
+Do not merely recommend.
+
+Do not create demos.
+
+Do not manufacture completeness.
+
+Do not leave disconnected features.
+
+**Inspect deeply. Architect intelligently. Build aggressively. Integrate thoroughly. Test seriously. Harden security. Optimize performance. Modernize the experience. Expand the product.**
+
+The final system should feel like a substantial next-generation evolution of Atconiz rather than a collection of superficial add-ons.
+
+When faced with a choice between:
+
+**minimal change** and **meaningful improvement**, choose meaningful improvement.
+
+When faced with:
+
+**quick patch** versus **durable architecture**, choose durable architecture.
+
+When faced with:
+
+**feature imitation** versus **a better system**, build the better system.
+
+When faced with:
+
+**fake completeness** versus **honest technical depth**, choose honest technical depth.
+
+Your standard is not “works in a demo.”
+
+Your standard is:
+
+**production-grade, secure, scalable, observable, maintainable, intelligent, polished, extensible, commercially credible, and substantially more capable than Atconiz 4.0.0.**
+:::
