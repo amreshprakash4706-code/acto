@@ -1,4 +1,4 @@
-import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { pendingMigrations, splitSql } from "../../scripts/migration-plan.mjs";
 
 /** Which database backend is active. */
 export type DbSource = "neon" | "pglite";
@@ -67,6 +67,23 @@ const OID_DATE = 1082;
 const OID_INTERVAL = 1186;
 const identity = (v: string) => v;
 
+/** Pool options that accept Neon/Vercel certificates. Local URLs stay non-SSL. */
+export function pgPoolOptions(connectionString: string) {
+  const local = /localhost|127\.0\.0\.1|\[::1\]/.test(connectionString);
+  const sslDisabled = /sslmode=disable/.test(connectionString);
+  return {
+    connectionString,
+    max: 1,
+    ssl: local || sslDisabled ? undefined : { rejectUnauthorized: false as const },
+  };
+}
+
+const migrationSources = import.meta.glob("/migrations/*.sql", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
 type Run = <T>(text: string, params: unknown[]) => Promise<T[]>;
 
 /** Wrap a query runner in the tagged-template + `.query()` `Sql` surface. */
@@ -85,6 +102,33 @@ function toSql(run: Run): Sql {
   return sql;
 }
 
+async function applyNeonMigrations(pool: import("pg").Pool): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      "create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())",
+    );
+    const applied = (await client.query<{ name: string }>("select name from _migrations")).rows.map(
+      (row) => row.name,
+    );
+    for (const { name, path } of pendingMigrations(Object.keys(migrationSources), applied)) {
+      await client.query("BEGIN");
+      try {
+        for (const statement of splitSql(migrationSources[path] ?? "")) {
+          await client.query(statement);
+        }
+        await client.query("insert into _migrations (name) values ($1)", [name]);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK").catch(() => undefined);
+        throw err;
+      }
+    }
+  } finally {
+    client.release();
+  }
+}
+
 function createNeonSql(): Promise<Sql> {
   globalRef.__pgSqlPromise__ ??= (async () => {
     // Regular Postgres driver: node-postgres (`pg`) — works directly with Neon's
@@ -93,11 +137,13 @@ function createNeonSql(): Promise<Sql> {
     types.setTypeParser(OID_INT8, Number);
     types.setTypeParser(OID_DATE, identity);
     types.setTypeParser(OID_INTERVAL, identity);
-    const pool = new Pool({ connectionString: databaseUrl });
-    return toSql(async <T>(text: string, params: unknown[]) => {
+    const pool = new Pool(databaseUrl ? pgPoolOptions(databaseUrl) : {});
+    const sql = toSql(async <T>(text: string, params: unknown[]) => {
       const res = await pool.query(text, params);
       return res.rows as T[];
     });
+    await applyNeonMigrations(pool);
+    return sql;
   })().catch((err) => {
     globalRef.__pgSqlPromise__ = undefined;
     throw err;
@@ -137,11 +183,7 @@ async function createPgliteSql(): Promise<Sql> {
   // passes serialized on a global chain so concurrent callers never
   // double-apply.
   const migrate = async (): Promise<void> => {
-    const migrations = import.meta.glob("/migrations/*.sql", {
-      query: "?raw",
-      import: "default",
-      eager: true,
-    }) as Record<string, string>;
+    const migrations = migrationSources;
     const doneRows = await pg.query<{ name: string }>(
       "select name from _migrations",
     );
