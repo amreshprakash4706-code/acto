@@ -44,3 +44,76 @@ export function pendingMigrations(paths, applied) {
     .sort((a, b) => a.name.localeCompare(b.name))
     .filter(({ name }) => !done.has(name));
 }
+
+/**
+ * Split a migration file into statements. Keeps quotes and dollar-quotes intact
+ * so a Neon pooler (which rejects multi-command queries) can run them one by one.
+ * @param {string} sql
+ * @returns {string[]}
+ */
+export function splitSql(sql) {
+  /** @type {string[]} */
+  const statements = [];
+  let buf = "";
+  let i = 0;
+  let inSingle = false;
+  let inDouble = false;
+  /** @type {string | null} */
+  let dollar = null;
+  while (i < sql.length) {
+    if (!inSingle && !inDouble && !dollar && sql.startsWith("--", i)) {
+      const end = sql.indexOf("\n", i);
+      i = end === -1 ? sql.length : end + 1;
+      continue;
+    }
+    if (!inSingle && !inDouble && !dollar && sql[i] === "$") {
+      const tag = sql.slice(i).match(/^\$[A-Za-z0-9_]*\$/);
+      if (tag) {
+        dollar = tag[0];
+        buf += tag[0];
+        i += tag[0].length;
+        continue;
+      }
+    }
+    if (dollar) {
+      if (sql.startsWith(dollar, i)) {
+        buf += dollar;
+        i += dollar.length;
+        dollar = null;
+        continue;
+      }
+      buf += sql[i];
+      i += 1;
+      continue;
+    }
+    if (!inDouble && sql[i] === "'") {
+      if (inSingle && sql[i + 1] === "'") {
+        buf += "''";
+        i += 2;
+        continue;
+      }
+      inSingle = !inSingle;
+      buf += sql[i];
+      i += 1;
+      continue;
+    }
+    if (!inSingle && sql[i] === '"') {
+      inDouble = !inDouble;
+      buf += sql[i];
+      i += 1;
+      continue;
+    }
+    if (!inSingle && !inDouble && sql[i] === ";") {
+      const statement = buf.trim();
+      if (statement) statements.push(statement);
+      buf = "";
+      i += 1;
+      continue;
+    }
+    buf += sql[i];
+    i += 1;
+  }
+  const tail = buf.trim();
+  if (tail) statements.push(tail);
+  return statements;
+}
